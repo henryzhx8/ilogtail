@@ -18,6 +18,7 @@
 #include "common/JsonUtil.h"
 #include "common/ParamExtractor.h"
 #include "plugin/PluginRegistry.h"
+#include "common/YamlUtil.h"
 
 DEFINE_FLAG_BOOL(enable_env_ref_in_config, "enable environment variable reference replacement in configuration", false);
 
@@ -365,6 +366,8 @@ bool ParseConfigDetail(const string& content, const string& extension, Json::Val
     if (extension == ".json") {
         return ParseConfig(content, detail, errorMsg);
     } else if (extension == ".yaml" || extension == ".yml") {
+        // yaml 转 json
+        return ParseYamlConfig(content, detail, errorMsg);
     }
     return false;
 }
