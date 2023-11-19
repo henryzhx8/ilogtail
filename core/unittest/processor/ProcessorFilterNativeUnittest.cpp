@@ -18,7 +18,6 @@
 #include "common/ExceptionBase.h"
 #include "config/UserLogConfigParser.h"
 
-using namespace std;
 using boost::regex;
 
 DECLARE_FLAG_STRING(user_log_config);
@@ -245,7 +244,7 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
     }
     // case 2
     {
-        // a: int, b: string c: ip, d: date
+        // a: int, b: std::string c: ip, d: date
         const char* jsonStr
             = "{\n"
               "  \"operator\": \"and\",\n"
@@ -610,7 +609,7 @@ static const char UTF8_BYTE_MASK = 0xc0;
 
 void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
     const int caseCharacterNum = 80; // ten charactor for every situation
-    string characterSet[caseCharacterNum];
+    std::string characterSet[caseCharacterNum];
     bool isBlunk[caseCharacterNum][4]; // every charactor has 4 byte atmost
 
     // generate one byte utf8;
@@ -622,7 +621,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             tmp &= 0x7f;
         } while (tmp == 32 || tmp == 9); // tmp should not be space or \t
 
-        characterSet[i] = string(1, tmp);
+        characterSet[i] = std::string(1, tmp);
         isBlunk[i][0] = false;
     }
 
@@ -634,7 +633,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             tmp |= 0x80;
             tmp &= 0xbf;
         } while (tmp == 32 || tmp == 9); // tmp shoud be 10xx xxxx;
-        characterSet[i] = string(1, tmp);
+        characterSet[i] = std::string(1, tmp);
         isBlunk[i][0] = true;
     }
 
@@ -653,7 +652,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             unicode = (((tmp1 & 0x1f) << 6) | (tmp2 & 0x3f));
         } while (!(unicode >= 0x80 && unicode <= 0x7ff));
 
-        characterSet[i] = string(1, tmp1) + string(1, tmp2);
+        characterSet[i] = std::string(1, tmp1) + std::string(1, tmp2);
         isBlunk[i][0] = false;
         isBlunk[i][1] = false;
     }
@@ -680,7 +679,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
     }
 
     for (int index = 30; index < 35; ++index) {
-        characterSet[index] = string(1, randArr1[index - 30]) + string(1, randArr2[index - 30]);
+        characterSet[index] = std::string(1, randArr1[index - 30]) + std::string(1, randArr2[index - 30]);
         isBlunk[index][0] = true;
         isBlunk[index][1] = false;
     }
@@ -689,7 +688,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
     for (int index = 35; index < 40; ++index) {
         randArr1[index - 30] &= 0xe1; // unicode must in rand [0x80,0x7fff]; ant two byte has 11 bits ,so the
                                       // situation can only be < 0x80
-        characterSet[index] = string(1, randArr1[index - 30]) + string(1, randArr2[index - 30]);
+        characterSet[index] = std::string(1, randArr1[index - 30]) + std::string(1, randArr2[index - 30]);
         isBlunk[index][0] = true;
         isBlunk[index][1] = true;
     }
@@ -712,7 +711,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             unicode = (((tmp1 & 0x0f) << 12) | ((tmp2 & 0x3f) << 6) | (tmp3 & 0x3f));
         } while (!(unicode >= 0x800));
 
-        characterSet[i] = string(1, tmp1) + string(1, tmp2) + string(1, tmp3);
+        characterSet[i] = std::string(1, tmp1) + std::string(1, tmp2) + std::string(1, tmp3);
         isBlunk[i][0] = false;
         isBlunk[i][1] = false;
         isBlunk[i][2] = false;
@@ -741,7 +740,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr2[i - 50] = rand() & 0xff;
             randArr2[i - 50] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr2[i - 50] == 32);
-        characterSet[i] = string(1, randArr1[i - 50]) + string(1, randArr2[i - 50]) + string(1, randArr3[i - 50]);
+        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = true;
@@ -752,7 +751,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr3[i - 50] = rand() & 0xff;
             randArr3[i - 50] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr3[i - 50] == 32);
-        characterSet[i] = string(1, randArr1[i - 50]) + string(1, randArr2[i - 50]) + string(1, randArr3[i - 50]);
+        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = false;
@@ -766,7 +765,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr3[i - 50] = rand() & 0xff;
             randArr3[i - 50] &= 0x7f; // second bytes is 0xxx xxxx
         } while (randArr3[i - 50] == 32 || randArr2[i - 50] == 32);
-        characterSet[i] = string(1, randArr1[i - 50]) + string(1, randArr2[i - 50]) + string(1, randArr3[i - 50]);
+        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = false;
@@ -777,7 +776,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
         randArr1[i - 50] &= 0xf0;
         randArr2[i - 50] &= 0xdf; // 1110 0000  100xxxxx 10xxxxxx
 
-        characterSet[i] = string(1, randArr1[i - 50]) + string(1, randArr2[i - 50]) + string(1, randArr3[i - 50]);
+        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = true;
@@ -803,7 +802,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             unicode = ((tmp1 & 0x07) << 18) | ((tmp2 & 0x3f) << 12) | ((tmp3 & 0x3f) << 6) | (tmp4 & 0x3f);
         } while (!(unicode >= 0x00010000 && unicode <= 0x0010ffff));
 
-        characterSet[i] = string(1, tmp1) + string(1, tmp2) + string(1, tmp3) + string(1, tmp4);
+        characterSet[i] = std::string(1, tmp1) + std::string(1, tmp2) + std::string(1, tmp3) + std::string(1, tmp4);
         isBlunk[i][0] = false;
         isBlunk[i][1] = false;
         isBlunk[i][2] = false;
@@ -840,8 +839,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr2[i - 70] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr2[i - 70] == 32);
 
-        characterSet[i] = string(1, randArr1[i - 70]) + string(1, randArr2[i - 70]) + string(1, randArr3[i - 70])
-            + string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
+            + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = true;
@@ -853,8 +852,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr3[i - 70] = rand() & 0xff;
             randArr3[i - 70] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr3[i - 70] == 32);
-        characterSet[i] = string(1, randArr1[i - 70]) + string(1, randArr2[i - 70]) + string(1, randArr3[i - 70])
-            + string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
+            + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = false;
@@ -871,8 +870,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr4[i - 70] = rand() & 0xff;
             randArr4[i - 70] &= 0x7f; // second bytes is 0xxx xxxx
         } while (randArr4[i - 70] == 32 || randArr2[i - 70] == 32 || randArr3[i - 70] == 32);
-        characterSet[i] = string(1, randArr1[i - 70]) + string(1, randArr2[i - 70]) + string(1, randArr3[i - 70])
-            + string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
+            + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = false;
@@ -885,8 +884,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
     for (int i = 76; i < 78; ++i) {
         randArr1[i - 70] &= 0xf0;
         randArr2[i - 70] &= 0x8f; // 1110 0000  100xxxxx 10xxxxxx
-        characterSet[i] = string(1, randArr1[i - 70]) + string(1, randArr2[i - 70]) + string(1, randArr3[i - 70])
-            + string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
+            + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = true;
@@ -898,8 +897,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
         randArr1[i - 70] |= 0x04;
         randArr2[i - 70] |= 0x10; // 1110 0000  100xxxxx 10xxxxxx
 
-        characterSet[i] = string(1, randArr1[i - 70]) + string(1, randArr2[i - 70]) + string(1, randArr3[i - 70])
-            + string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
+            + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = true;
@@ -908,11 +907,11 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
 
     for (int i = 0; i < 10; ++i) {
         LOG_INFO(sLogger, ("################################round", i));
-        string testStr;
+        std::string testStr;
         const int CHARACTER_COUNT = 8192;
         bool flow[CHARACTER_COUNT * 4];
         int index = 0; // index of flow
-        // generate test string with character randomly, and record whether a position should be replaced by blunck
+        // generate test std::string with character randomly, and record whether a position should be replaced by blunck
         for (int j = 0; j < CHARACTER_COUNT; ++j) {
             int randIndex = rand() % 80;
             LOG_INFO(sLogger, ("j", j)("randIndex", randIndex)("index", index));
@@ -938,7 +937,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             }
 
             if (j == (CHARACTER_COUNT - 1) && randIndex >= 20
-                && randIndex % 20 < 10) // the last character of string ,and at least two bytes,ant is utf8
+                && randIndex % 20 < 10) // the last character of std::string ,and at least two bytes,ant is utf8
             {
                 testStr = testStr.substr(0, testStr.size() - 1);
                 if (randIndex >= 20 && randIndex < 30)

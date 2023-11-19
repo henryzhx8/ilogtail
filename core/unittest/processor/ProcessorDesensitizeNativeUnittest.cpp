@@ -17,8 +17,6 @@
 #include "models/LogEvent.h"
 #include "plugin/instance/ProcessorInstance.h"
 
-using namespace std;
-
 namespace logtail {
 
 class ProcessorDesensitizeNativeUnittest : public ::testing::Test {
@@ -26,7 +24,7 @@ public:
     void SetUp() override {
         mContext.SetConfigName("project##config_0");
     }
-    Json::Value GetCastSensWordConfig(string, string, string, string, string, bool);
+    Json::Value GetCastSensWordConfig(std::string, std::string, std::string, std::string, std::string, bool);
     void TestInit();
     void TestCastSensWordConst();
     void TestCastSensWordMD5();
@@ -48,12 +46,12 @@ UNIT_TEST_CASE(ProcessorDesensitizeNativeUnittest, TestCastSensWordLoggroup);
 
 UNIT_TEST_CASE(ProcessorDesensitizeNativeUnittest, TestCastSensWordMulti);
 
-Json::Value ProcessorDesensitizeNativeUnittest::GetCastSensWordConfig(string sourceKey = string("cast1"),
-                                                                      string method = "const",
-                                                                      string replacingString = string("********"),
-                                                                      string contentPatternBeforeReplacedString
+Json::Value ProcessorDesensitizeNativeUnittest::GetCastSensWordConfig(std::string sourceKey = std::string("cast1"),
+                                                                      std::string method = "const",
+                                                                      std::string replacingString = std::string("********"),
+                                                                      std::string contentPatternBeforeReplacedString
                                                                       = "pwd=",
-                                                                      string replacedContentPattern = "[^,]+",
+                                                                      std::string replacedContentPattern = "[^,]+",
                                                                       bool replaceAll = false) {
     Json::Value config;
     config["SourceKey"] = Json::Value(sourceKey);

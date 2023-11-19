@@ -20,8 +20,6 @@
 #include "plugin/instance/ProcessorInstance.h"
 #include "common/ParamExtractor.h"
 
-using namespace std;
-
 namespace logtail {
 const std::string ProcessorParseRegexNative::sName = "processor_parse_regex_native";
 const std::string ProcessorParseRegexNative::UNMATCH_LOG_KEY = "__raw_log__";
