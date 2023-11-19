@@ -27,16 +27,15 @@ const std::string ProcessorSplitLogStringNative::sName = "processor_split_string
 
 bool ProcessorSplitLogStringNative::Init(const Json::Value& config) {
     std::string errorMsg;
-    mSplitKey = DEFAULT_CONTENT_KEY;
-    mSplitChar = '\n';
-    if (IsExist(config, "SplitChar")) {
-        std::string splitChar;
-        GetOptionalStringParam(config, "SplitChar", splitChar, errorMsg);
-        mSplitChar = splitChar[0];
+    // SplitKey
+    if (!GetOptionalStringParam(config, "SplitKey", mSplitKey, errorMsg)) {
+        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSplitKey, sName, mContext->GetConfigName());
     }
-    if (mSplitChar == '\0')
-    {
-        std::cout<<"0"<<std::endl;
+    int32_t splitter = '\n';
+    if (!GetOptionalIntParam(config, "SplitChar", splitter, errorMsg)) {
+        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, "\\n", sName, mContext->GetConfigName());
+    } else {
+        mSplitChar = static_cast<char>(splitter);
     }
     // AppendingLogPositionMeta
     if (!GetOptionalBoolParam(config, "AppendingLogPositionMeta", mAppendingLogPositionMeta, errorMsg)) {

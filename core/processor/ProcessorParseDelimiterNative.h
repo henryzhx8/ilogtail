@@ -27,13 +27,14 @@ public:
     static const std::string sName;
     static const std::string UNMATCH_LOG_KEY;
 
-    enum class Method { extend, keep, discard };
+    enum class OverflowedFieldsTreatment { EXTEND, KEEP, DISCARD };
+
     // 必填 源字段名。
     std::string mSourceKey;
     // 必填 分隔符
     std::string mSeparator;
     // 引用符
-    char mQuote = '"';
+    char mQuote = '\"';
     // 必填 提取的字段列表。
     std::vector<std::string> mKeys;
     // 是否允许提取的字段数量小于Keys的数量。若不允许，则此情景会被视为解析失败。
@@ -43,13 +44,13 @@ public:
     // extend：保留多余的字段，且每个多余的字段都作为单独的一个字段加入日志，多余字段的字段名为__column$i__，其中$i代表额外字段序号，从0开始计数。
     // ● keep：保留多余的字段，但将多余内容作为一个整体字段加入日志，字段名为__column0__.
     // ● discard：丢弃多余的字段。
-    std::string mOverflowedFieldsTreatment = "extend";
+    OverflowedFieldsTreatment mOverflowedFieldsTreatment = OverflowedFieldsTreatment::EXTEND;
     // 当解析失败时，是否保留源字段。
     bool mKeepingSourceWhenParseFail = false;
     // 当解析成功时，是否保留源字段。
     bool mKeepingSourceWhenParseSucceed = false;
     // 当源字段被保留时，用于存储源字段的字段名。若不填，默认不改名。
-    std::string mRenamedSourceKey = "";
+    std::string mRenamedSourceKey = "__raw__";
 
 
     const std::string& Name() const override { return sName; }

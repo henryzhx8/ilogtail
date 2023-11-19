@@ -244,7 +244,7 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
     }
     // case 2
     {
-        // a: int, b: std::string c: ip, d: date
+        // a: int, b: string c: ip, d: date
         const char* jsonStr
             = "{\n"
               "  \"operator\": \"and\",\n"
@@ -911,7 +911,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
         const int CHARACTER_COUNT = 8192;
         bool flow[CHARACTER_COUNT * 4];
         int index = 0; // index of flow
-        // generate test std::string with character randomly, and record whether a position should be replaced by blunck
+        // generate test string with character randomly, and record whether a position should be replaced by blunck
         for (int j = 0; j < CHARACTER_COUNT; ++j) {
             int randIndex = rand() % 80;
             LOG_INFO(sLogger, ("j", j)("randIndex", randIndex)("index", index));
@@ -937,7 +937,7 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             }
 
             if (j == (CHARACTER_COUNT - 1) && randIndex >= 20
-                && randIndex % 20 < 10) // the last character of std::string ,and at least two bytes,ant is utf8
+                && randIndex % 20 < 10) // the last character of string ,and at least two bytes,ant is utf8
             {
                 testStr = testStr.substr(0, testStr.size() - 1);
                 if (randIndex >= 20 && randIndex < 30)

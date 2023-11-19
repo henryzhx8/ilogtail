@@ -26,7 +26,7 @@ class ProcessorSplitLogStringNative : public Processor {
 public:
     static const std::string sName;
 
-    std::string mSplitKey;
+    std::string mSplitKey = DEFAULT_CONTENT_KEY;
     char mSplitChar = '\n';
     bool mAppendingLogPositionMeta = false;
 
@@ -42,7 +42,6 @@ private:
     void LogSplit(const char* buffer, int32_t size, int32_t& lineFeed, std::vector<StringView>& logIndex);
     int* mFeedLines = nullptr;
     int* mSplitLines = nullptr;
-    bool mEnableLogPositionMeta = false;
 #ifdef APSARA_UNIT_TEST_MAIN
     friend class ProcessorRegexStringNativeUnittest;
 #endif

@@ -35,13 +35,16 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     if (!GetMandatoryStringParam(config, "Separator", mSeparator, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
+    if(mSeparator.size() > 3) {
+        errorMsg = "Separator length should be no more than 3";
+        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+    }
 
     if (mSeparator == "\\t")
         mSeparator = '\t';
+    std::string quoteStr = "\"";
     if (mSeparator.size() == 1) {
-        std::string quoteStr = "\"";
         if (!GetOptionalStringParam(config, "Quote", quoteStr, errorMsg)) {
-            mQuote = quoteStr[0];
             PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mQuote, sName, mContext->GetConfigName());
         } else if (quoteStr.size() == 1) {
             mQuote = quoteStr[0];
@@ -49,9 +52,6 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
             errorMsg = "quote for Delimiter Log only support single char(like \")";
             PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
         }
-    } else if (mSeparator.size() == 0) {
-        errorMsg = "separator for Delimiter Log should not be empty";
-        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
 
     if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {
@@ -61,9 +61,20 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         PARAM_WARNING_DEFAULT(
             mContext->GetLogger(), errorMsg, mAllowingShortenedFields, sName, mContext->GetConfigName());
     }
-    if (!GetOptionalStringParam(config, "OverflowedFieldsTreatment", mOverflowedFieldsTreatment, errorMsg)) {
+    std::string overflowedFieldsTreatment;
+    if (!GetOptionalStringParam(config, "OverflowedFieldsTreatment", overflowedFieldsTreatment, errorMsg)) {
         PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mOverflowedFieldsTreatment, sName, mContext->GetConfigName());
+            mContext->GetLogger(), errorMsg, overflowedFieldsTreatment, sName, mContext->GetConfigName());
+    }
+    if (overflowedFieldsTreatment == "extend") {
+        mOverflowedFieldsTreatment = OverflowedFieldsTreatment::EXTEND;
+    } else if (overflowedFieldsTreatment == "keep") {
+        mOverflowedFieldsTreatment = OverflowedFieldsTreatment::KEEP;
+    } else if (overflowedFieldsTreatment == "discard") {
+        mOverflowedFieldsTreatment = OverflowedFieldsTreatment::DISCARD;
+    } else {
+        PARAM_WARNING_DEFAULT(
+            mContext->GetLogger(), errorMsg, overflowedFieldsTreatment, sName, mContext->GetConfigName());
     }
     if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
         PARAM_WARNING_DEFAULT(
@@ -100,8 +111,8 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         }
     }
 
-    mAutoExtend = mOverflowedFieldsTreatment == "extend" || mOverflowedFieldsTreatment == "";
-    mExtractPartialFields = mOverflowedFieldsTreatment == "discard";
+    mAutoExtend = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND;
+    mExtractPartialFields = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::DISCARD;
 
     mDelimiterModeFsmParserPtr = new DelimiterModeFsmParser(mQuote, mSeparatorChar);
     mParseFailures = &(GetContext().GetProcessProfile().parseFailures);

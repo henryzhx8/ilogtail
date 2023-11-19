@@ -31,6 +31,9 @@ bool ProcessorParseRegexNative::Init(const Json::Value& config) {
     }
     if (!GetMandatoryStringParam(config, "Regex", mRegex, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+    } else if (!CheckRegFormat(mRegex)) {
+        errorMsg = std::string("The regex is invalid") + mRegex;
+        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
     if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
@@ -45,7 +48,6 @@ bool ProcessorParseRegexNative::Init(const Json::Value& config) {
             mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseSucceed, sName, mContext->GetConfigName());
     }
     if (!GetOptionalStringParam(config, "RenamedSourceKey", mRenamedSourceKey, errorMsg)) {
-        mRenamedSourceKey = mSourceKey;
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mRenamedSourceKey, sName, mContext->GetConfigName());
     }
     if (!GetOptionalBoolParam(config, "CopingRawLog", mCopingRawLog, errorMsg)) {
@@ -231,4 +233,12 @@ bool ProcessorParseRegexNative::RegexLogLineParser(LogEvent& sourceEvent,
     return true;
 }
 
+bool ProcessorParseRegexNative::CheckRegFormat(const std::string& regStr) {
+    try {
+        boost::regex reg(regStr);
+    } catch (...) {
+        return false;
+    }
+    return true;
+}
 } // namespace logtail

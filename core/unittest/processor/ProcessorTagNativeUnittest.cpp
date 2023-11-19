@@ -47,7 +47,6 @@ void ProcessorTagNativeUnittest::TestInit() {
         processor.SetContext(mContext);
         std::string pluginId = "testID";
         APSARA_TEST_TRUE_FATAL(processor.Init(config));
-        APSARA_TEST_EQUAL_FATAL(true, processor.mPluginProcessFlag);
     }
 }
 

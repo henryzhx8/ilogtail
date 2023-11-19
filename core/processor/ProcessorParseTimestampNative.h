@@ -30,7 +30,7 @@ public:
     std::string mSourceFormat;
     // 日志时间所属时区。格式为GMT+HH:MM（东区）或GMT-HH:MM（西区）。
     std::string mSourceTimezone = "";
-    int mSourceYear = -1;
+    int32_t mSourceYear = -1;
 
     const std::string& Name() const override { return sName; }
     bool Init(const Json::Value& config) override;

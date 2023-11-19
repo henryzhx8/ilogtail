@@ -22,17 +22,16 @@
 
 #include "plugin/interface/Processor.h"
 
+#include "file_server/MultilineOptions.h"
+
 namespace logtail {
 
 class ProcessorSplitRegexNative : public Processor {
 public:
     static const std::string sName;
 
-    std::string mSplitKey;
-    std::string mStartPattern;
-    std::string mContinuePattern;
-    std::string mEndPattern;
-    bool mIsMultline;
+    std::string mSplitKey = DEFAULT_CONTENT_KEY;
+    MultilineOptions mMultiline;
     bool mAppendingLogPositionMeta = false;
     bool mKeepingSourceWhenParseFail = false;
 
@@ -56,7 +55,6 @@ private:
                   std::vector<StringView>& logIndex,
                   std::vector<StringView>& discardIndex,
                   const StringView& logPath);
-    void SetLogMultilinePolicy();
     void HandleUnmatchLogs(const char* buffer,
                            int& multiBeginIndex,
                            int endIndex,
@@ -66,9 +64,6 @@ private:
     int* mFeedLines = nullptr;
     int* mSplitLines = nullptr;
 
-    std::unique_ptr<boost::regex> mLogBeginRegPtr;
-    std::unique_ptr<boost::regex> mLogContinueRegPtr;
-    std::unique_ptr<boost::regex> mLogEndRegPtr;
 #ifdef APSARA_UNIT_TEST_MAIN
     friend class ProcessorSplitRegexNativeUnittest;
     friend class ProcessorSplitRegexDisacardUnmatchUnittest;

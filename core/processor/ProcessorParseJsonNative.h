@@ -33,7 +33,7 @@ public:
     // 当解析成功时，是否保留源字段。
     bool mKeepingSourceWhenParseSucceed = false;
     // 当原始字段被保留时，用于存储原始字段的字段名。若不填，默认不改名。
-    std::string mRenamedSourceKey = "";
+    std::string mRenamedSourceKey = "__raw__";
     bool mCopingRawLog = false;
 
     const std::string& Name() const override { return sName; }

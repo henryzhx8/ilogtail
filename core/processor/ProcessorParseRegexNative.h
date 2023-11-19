@@ -21,12 +21,6 @@
 #include "plugin/interface/Processor.h"
 
 namespace logtail {
-enum ParseLogError {
-    PARSE_LOG_REGEX_ERROR,
-    PARSE_LOG_FORMAT_ERROR,
-    PARSE_LOG_TIMEFORMAT_ERROR,
-    PARSE_LOG_HISTORY_ERROR
-};
 struct UserDefinedFormat {
     boost::regex mReg;
     std::vector<std::string> mKeys;
@@ -51,7 +45,7 @@ public:
     // 当解析成功时，是否保留源字段。
     bool mKeepingSourceWhenParseSucceed = false;
     // 当源字段被保留时，用于存储源字段的字段名。若不填，默认不改名。
-    std::string mRenamedSourceKey = "";
+    std::string mRenamedSourceKey = "__raw__";
     bool mCopingRawLog = false;
 
 
@@ -72,6 +66,8 @@ private:
                             const std::vector<std::string>& keys,
                             const StringView& logPath);
     void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent);
+    bool CheckRegFormat(const std::string& regStr);
+
     bool mSourceKeyOverwritten = false;
     bool mRawLogTagOverwritten = false;
     std::vector<UserDefinedFormat> mUserDefinedFormat;
