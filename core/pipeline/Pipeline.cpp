@@ -94,9 +94,10 @@ bool Pipeline::Init(NewConfig&& config) {
         } else if (inputFile->mMultiline.IsMultiline()) {
             processor = PluginRegistry::GetInstance()->CreateProcessor(ProcessorSplitRegexNative::sName,
                                                                        to_string(++pluginIndex));
-            detail["StartPattern"] = Json::Value(inputFile->mMultiline.mStartPattern);
-            detail["ContinuePattern"] = Json::Value(inputFile->mMultiline.mContinuePattern);
-            detail["EndPattern"] = Json::Value(inputFile->mMultiline.mEndPattern);
+            detail["Multiline.Mode"] = Json::Value("custom");
+            detail["Multiline.StartPattern"] = Json::Value(inputFile->mMultiline.mStartPattern);
+            detail["Multiline.ContinuePattern"] = Json::Value(inputFile->mMultiline.mContinuePattern);
+            detail["Multiline.EndPattern"] = Json::Value(inputFile->mMultiline.mEndPattern);
             detail["AppendingLogPositionMeta"] = Json::Value(inputFile->mFileReader.mAppendingLogPositionMeta);
         } else {
             processor = PluginRegistry::GetInstance()->CreateProcessor(ProcessorSplitLogStringNative::sName,

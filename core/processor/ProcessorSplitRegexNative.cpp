@@ -36,20 +36,7 @@ bool ProcessorSplitRegexNative::Init(const Json::Value& config) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSplitKey, sName, mContext->GetConfigName());
     }
 
-    // StartPattern
-    if (!GetOptionalStringParam(config, "StartPattern", mMultiline.mStartPattern, errorMsg)) {
-        PARAM_WARNING_IGNORE(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
-    }
-    // ContinuePattern
-    if (!GetOptionalStringParam(config, "ContinuePattern", mMultiline.mContinuePattern, errorMsg)) {
-        PARAM_WARNING_IGNORE(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
-    }
-    // EndPattern
-    std::string endPattern;
-    if (!GetOptionalStringParam(config, "EndPattern", mMultiline.mEndPattern, errorMsg)) {
-        PARAM_WARNING_IGNORE(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
-    }
-    mMultiline.SetLogMultilinePolicy();
+    mMultiline.Init(config, *mContext, sName);
 
     if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
         PARAM_WARNING_DEFAULT(

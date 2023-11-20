@@ -35,14 +35,6 @@ public:
     const std::shared_ptr<boost::regex>& GetContinuePatternReg() const { return mContinuePatternRegPtr; }
     const std::shared_ptr<boost::regex>& GetEndPatternReg() const { return mEndPatternRegPtr; }
     bool IsMultiline() const { return mIsMultiline; }
-    void SetLogMultilinePolicy() {
-        ParseRegex(mStartPattern, mStartPatternRegPtr);
-        ParseRegex(mContinuePattern, mContinuePatternRegPtr);
-        ParseRegex(mEndPattern, mEndPatternRegPtr);
-        if (mStartPatternRegPtr || mEndPatternRegPtr) {
-            mIsMultiline = true;
-        }
-    }
 
     std::shared_ptr<boost::regex> mStartPatternRegPtr;
     std::shared_ptr<boost::regex> mContinuePatternRegPtr;
