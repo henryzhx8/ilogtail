@@ -67,15 +67,11 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
     Json::Value resultJson;
 
     switch (rootNode.Type()) {
-        case YAML::NodeType::Null:
-            return resultJson;
-
         case YAML::NodeType::Scalar:
             return ParseScalar(rootNode);
 
         case YAML::NodeType::Sequence: {
             resultJson = Json::Value(Json::arrayValue); // create an empty array
-            int i = 0;
             for (const auto& node : rootNode) {
                 resultJson.append(CovertYamlToJson(node));
             }
@@ -90,6 +86,7 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
             break;
         }
 
+        case YAML::NodeType::Null:
         default:
             return resultJson;
     }
