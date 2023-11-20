@@ -25,7 +25,6 @@ public:
     void TestNestedYaml();
     void TestDifferentTypesYaml();
     void TestMultiLevelListYaml();
-    void TestEmptyListAndDictYaml();
     void TestSpecialValuesYaml();
     void TestNestedNonScalarYaml();
     void TestCommentYaml();
@@ -41,14 +40,32 @@ public:
 };
 
 void YamlUtilUnittest::TestEmptyYaml() {
-    std::string yaml = "";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    APSARA_TEST_TRUE_FATAL(ret);
-    json = CovertYamlToJson(yamlRoot);
-    APSARA_TEST_TRUE_FATAL(json.isNull());
+    {
+        std::string yaml = "";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_TRUE_FATAL(json.isNull());
+    }
+    {
+        std::string yaml = R"(
+            a: []
+            b: {}
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_TRUE_FATAL(json["a"].empty());
+        APSARA_TEST_TRUE_FATAL(json["a"].isArray());
+        APSARA_TEST_TRUE_FATAL(json["b"].empty());
+        APSARA_TEST_TRUE_FATAL(json["b"].isObject());
+    }
 }
 
 void YamlUtilUnittest::TestInvalidYaml() {
@@ -149,23 +166,6 @@ void YamlUtilUnittest::TestMultiLevelListYaml() {
     APSARA_TEST_EQUAL_FATAL(json[2][0].asString(), "c");
     APSARA_TEST_EQUAL_FATAL(json[2][1].asString(), "d");
     APSARA_TEST_EQUAL_FATAL(json[3].asString(), "e");
-}
-
-void YamlUtilUnittest::TestEmptyListAndDictYaml() {
-    std::string yaml = R"(
-            a: []
-            b: {}
-        )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    APSARA_TEST_TRUE_FATAL(ret);
-    json = CovertYamlToJson(yamlRoot);
-    APSARA_TEST_TRUE_FATAL(json["a"].empty());
-    APSARA_TEST_TRUE_FATAL(json["a"].isArray());
-    APSARA_TEST_TRUE_FATAL(json["b"].empty());
-    APSARA_TEST_TRUE_FATAL(json["b"].isObject());
 }
 
 void YamlUtilUnittest::TestSpecialValuesYaml() {
@@ -447,7 +447,6 @@ UNIT_TEST_CASE(YamlUtilUnittest, TestInvalidYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestNestedYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestDifferentTypesYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestMultiLevelListYaml);
-UNIT_TEST_CASE(YamlUtilUnittest, TestEmptyListAndDictYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialValuesYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestNestedNonScalarYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestCommentYaml);
