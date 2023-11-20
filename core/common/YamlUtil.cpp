@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "common/ExceptionBase.h"
 #include "common/YamlUtil.h"
+
+#include "common/ExceptionBase.h"
 
 namespace logtail {
 
@@ -33,7 +34,7 @@ bool ParseYamlConfig(const std::string& config, YAML::Node& yamlRoot, std::strin
     return true;
 }
 
-Json::Value parseScalar(const YAML::Node& node) {
+Json::Value ParseScalar(const YAML::Node& node) {
     // yaml-cpp automatically discards quotes in quoted values,
     // so to differentiate strings and integer for purely-digits value,
     // we can tell from node.Tag(), which will return "!" for quoted values and "?" for others
@@ -43,19 +44,19 @@ Json::Value parseScalar(const YAML::Node& node) {
 
     int i;
     if (YAML::convert<int>::decode(node, i))
-        return i;
+        return Json::Value(i);
 
     double d;
     if (YAML::convert<double>::decode(node, d))
-        return d;
+        return Json::Value(d);
 
     bool b;
     if (YAML::convert<bool>::decode(node, b))
-        return b;
+        return Json::Value(b);
 
     std::string s;
     if (YAML::convert<std::string>::decode(node, s))
-        return s;
+        return Json::Value(s);
 
     return Json::Value();
 }
@@ -68,22 +69,21 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
             return Json::Value();
 
         case YAML::NodeType::Scalar:
-            return parseScalar(rootNode);
+            return ParseScalar(rootNode);
 
         case YAML::NodeType::Sequence: {
             resultJson = Json::Value(Json::arrayValue); // create an empty array
             int i = 0;
-            for (auto&& node : rootNode) {
-                resultJson[i] = CovertYamlToJson(node);
-                i++;
+            for (const auto& node : rootNode) {
+                resultJson.append(CovertYamlToJson(node));
             }
             break;
         }
 
         case YAML::NodeType::Map: {
             resultJson = Json::Value(Json::objectValue); // create an empty object
-            for (auto&& it : rootNode) {
-                resultJson[it.first.as<std::string>()] = CovertYamlToJson(it.second);
+            for (const auto& node : rootNode) {
+                resultJson[node.first.as<std::string>()] = CovertYamlToJson(node.second);
             }
             break;
         }
