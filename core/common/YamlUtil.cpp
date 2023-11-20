@@ -67,7 +67,7 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
 
     switch (rootNode.Type()) {
         case YAML::NodeType::Null:
-            return Json::Value();
+            return resultJson;
 
         case YAML::NodeType::Scalar:
             return ParseScalar(rootNode);
@@ -90,7 +90,7 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
         }
 
         default:
-            return Json::Value();
+            return resultJson;
     }
 
     return resultJson;

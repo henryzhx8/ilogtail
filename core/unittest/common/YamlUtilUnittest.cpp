@@ -73,7 +73,7 @@ void YamlUtilUnittest::TestEmptyYaml() {
         json = CovertYamlToJson(yamlRoot);
     }
     APSARA_TEST_TRUE_FATAL(ret);
-    APSARA_TEST_TRUE_FATAL(json.size() == 0);
+    APSARA_TEST_TRUE_FATAL(json.isNull());
 }
 
 void YamlUtilUnittest::TestInvalidYaml() {
