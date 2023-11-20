@@ -27,7 +27,6 @@ public:
     void TestNestedYaml();
     void TestDifferentTypesYaml();
     void TestMultiLevelListYaml();
-    void TestSpecialValuesYaml();
     void TestNestedNonScalarYaml();
     void TestCommentYaml();
     void TestYamlSpecialMeaningChars();
@@ -125,27 +124,47 @@ void YamlUtilUnittest::TestNestedYaml() {
 }
 
 void YamlUtilUnittest::TestDifferentTypesYaml() {
-    std::string yaml = R"(
+    {
+        std::string yaml = R"(
             a: 1
             b: 2.2
             c: "3"
             d: true
             e: [1, 2, 3]
         )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    APSARA_TEST_TRUE_FATAL(ret);
-    json = CovertYamlToJson(yamlRoot);
-    APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 1);
-    APSARA_TEST_EQUAL_FATAL(json["b"].asDouble(), 2.2);
-    APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "3");
-    APSARA_TEST_EQUAL_FATAL(json["d"].asBool(), true);
-    APSARA_TEST_TRUE_FATAL(json["e"].isArray());
-    APSARA_TEST_EQUAL_FATAL(json["e"][0].asInt(), 1);
-    APSARA_TEST_EQUAL_FATAL(json["e"][1].asInt(), 2);
-    APSARA_TEST_EQUAL_FATAL(json["e"][2].asInt(), 3);
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 1);
+        APSARA_TEST_EQUAL_FATAL(json["b"].asDouble(), 2.2);
+        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "3");
+        APSARA_TEST_EQUAL_FATAL(json["d"].asBool(), true);
+        APSARA_TEST_TRUE_FATAL(json["e"].isArray());
+        APSARA_TEST_EQUAL_FATAL(json["e"][0].asInt(), 1);
+        APSARA_TEST_EQUAL_FATAL(json["e"][1].asInt(), 2);
+        APSARA_TEST_EQUAL_FATAL(json["e"][2].asInt(), 3);
+    }
+    {
+        std::string yaml = R"(
+            a: null
+            b: .NaN
+            c: .inf
+            d: -.inf
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_TRUE_FATAL(json["a"].isNull());
+        APSARA_TEST_TRUE_FATAL(std::isnan(json["b"].asDouble()));
+        APSARA_TEST_TRUE_FATAL(std::isinf(json["c"].asDouble()) && json["c"].asDouble() > 0);
+        APSARA_TEST_TRUE_FATAL(std::isinf(json["d"].asDouble()) && json["d"].asDouble() < 0);
+    }
 }
 
 void YamlUtilUnittest::TestMultiLevelListYaml() {
@@ -168,25 +187,6 @@ void YamlUtilUnittest::TestMultiLevelListYaml() {
     APSARA_TEST_EQUAL_FATAL(json[2][0].asString(), "c");
     APSARA_TEST_EQUAL_FATAL(json[2][1].asString(), "d");
     APSARA_TEST_EQUAL_FATAL(json[3].asString(), "e");
-}
-
-void YamlUtilUnittest::TestSpecialValuesYaml() {
-    std::string yaml = R"(
-            a: null
-            b: .NaN
-            c: .inf
-            d: -.inf
-        )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    APSARA_TEST_TRUE_FATAL(ret);
-    json = CovertYamlToJson(yamlRoot);
-    APSARA_TEST_TRUE_FATAL(json["a"].isNull());
-    APSARA_TEST_TRUE_FATAL(std::isnan(json["b"].asDouble()));
-    APSARA_TEST_TRUE_FATAL(std::isinf(json["c"].asDouble()) && json["c"].asDouble() > 0);
-    APSARA_TEST_TRUE_FATAL(std::isinf(json["d"].asDouble()) && json["d"].asDouble() < 0);
 }
 
 void YamlUtilUnittest::TestNestedNonScalarYaml() {
@@ -449,7 +449,6 @@ UNIT_TEST_CASE(YamlUtilUnittest, TestInvalidYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestNestedYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestDifferentTypesYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestMultiLevelListYaml);
-UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialValuesYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestNestedNonScalarYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestCommentYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestYamlSpecialMeaningChars);
