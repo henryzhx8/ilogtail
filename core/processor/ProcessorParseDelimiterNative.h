@@ -17,8 +17,8 @@
 #pragma once
 
 #include "models/LogEvent.h"
-#include "plugin/interface/Processor.h"
 #include "parser/DelimiterModeFsmParser.h"
+#include "plugin/interface/Processor.h"
 
 namespace logtail {
 

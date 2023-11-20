@@ -16,15 +16,16 @@
 
 #include "processor/ProcessorSplitRegexNative.h"
 
+#include <string>
+
 #include "app_config/AppConfig.h"
 #include "common/Constants.h"
-#include "reader/LogFileReader.h" //SplitState
-#include "models/LogEvent.h"
-#include "logger/Logger.h"
-#include "plugin/instance/ProcessorInstance.h"
-#include "monitor/MetricConstants.h"
 #include "common/ParamExtractor.h"
-#include <string>
+#include "logger/Logger.h"
+#include "models/LogEvent.h"
+#include "monitor/MetricConstants.h"
+#include "plugin/instance/ProcessorInstance.h"
+#include "reader/LogFileReader.h" //SplitState
 
 namespace logtail {
 const std::string ProcessorSplitRegexNative::sName = "processor_split_regex_native";

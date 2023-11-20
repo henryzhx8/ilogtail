@@ -15,10 +15,11 @@
  */
 
 #include "processor/ProcessorParseRegexNative.h"
+
 #include "app_config/AppConfig.h"
+#include "common/ParamExtractor.h"
 #include "monitor/MetricConstants.h"
 #include "plugin/instance/ProcessorInstance.h"
-#include "common/ParamExtractor.h"
 
 namespace logtail {
 const std::string ProcessorParseRegexNative::sName = "processor_parse_regex_native";

@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "models/LogEvent.h"
-#include "plugin/interface/Processor.h"
 #include "app_config/AppConfig.h"
 #include "common/LogGroupContext.h"
+#include "models/LogEvent.h"
+#include "plugin/interface/Processor.h"
 
 namespace logtail {
 

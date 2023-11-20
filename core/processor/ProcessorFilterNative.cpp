@@ -15,11 +15,13 @@
  */
 
 #include "processor/ProcessorFilterNative.h"
+
+#include <vector>
+
+#include "common/ParamExtractor.h"
+#include "logger/Logger.h"
 #include "models/LogEvent.h"
 #include "monitor/MetricConstants.h"
-#include <vector>
-#include "logger/Logger.h"
-#include "common/ParamExtractor.h"
 
 namespace logtail {
 const std::string ProcessorFilterNative::sName = "processor_filter_regex_native";

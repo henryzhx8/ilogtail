@@ -15,11 +15,11 @@
  */
 
 #include "processor/ProcessorParseDelimiterNative.h"
-// #include "common/Constants.h"
-#include "models/LogEvent.h"
-#include "plugin/instance/ProcessorInstance.h"
-#include "monitor/MetricConstants.h"
+
 #include "common/ParamExtractor.h"
+#include "models/LogEvent.h"
+#include "monitor/MetricConstants.h"
+#include "plugin/instance/ProcessorInstance.h"
 
 namespace logtail {
 const std::string ProcessorParseDelimiterNative::sName = "processor_parse_delimiter_native";

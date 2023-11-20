@@ -19,10 +19,10 @@
 #include "app_config/AppConfig.h"
 #include "common/Constants.h"
 #include "common/FileSystemUtil.h"
-#include "reader/LogFileReader.h"
-#include "plugin/instance/ProcessorInstance.h"
 #include "monitor/MetricConstants.h"
 #include "pipeline/Pipeline.h"
+#include "plugin/instance/ProcessorInstance.h"
+#include "reader/LogFileReader.h"
 
 namespace logtail {
 const std::string ProcessorTagNative::sName = "processor_tag_native";

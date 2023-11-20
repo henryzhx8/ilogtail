@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "plugin/interface/Processor.h"
 
 namespace logtail {

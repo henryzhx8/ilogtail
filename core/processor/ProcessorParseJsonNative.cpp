@@ -15,12 +15,14 @@
  */
 
 #include "processor/ProcessorParseJsonNative.h"
-#include "models/LogEvent.h"
-#include "plugin/instance/ProcessorInstance.h"
+
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-#include "monitor/MetricConstants.h"
+
 #include "common/ParamExtractor.h"
+#include "models/LogEvent.h"
+#include "monitor/MetricConstants.h"
+#include "plugin/instance/ProcessorInstance.h"
 
 namespace logtail {
 const std::string ProcessorParseJsonNative::sName = "processor_parse_json_native";

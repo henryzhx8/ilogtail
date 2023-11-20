@@ -18,9 +18,9 @@
 
 #include "app_config/AppConfig.h"
 #include "common/LogtailCommonFlags.h"
-#include "plugin/instance/ProcessorInstance.h"
-#include "monitor/MetricConstants.h"
 #include "common/ParamExtractor.h"
+#include "monitor/MetricConstants.h"
+#include "plugin/instance/ProcessorInstance.h"
 
 namespace logtail {
 const std::string ProcessorParseTimestampNative::sName = "processor_parse_timestamp_native";

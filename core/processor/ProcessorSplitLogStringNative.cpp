@@ -15,12 +15,14 @@
  */
 
 #include "processor/ProcessorSplitLogStringNative.h"
-#include "common/Constants.h"
-#include "models/LogEvent.h"
-#include "plugin/instance/ProcessorInstance.h"
-#include "monitor/MetricConstants.h"
-#include "common/ParamExtractor.h"
+
 #include <string>
+
+#include "common/Constants.h"
+#include "common/ParamExtractor.h"
+#include "models/LogEvent.h"
+#include "monitor/MetricConstants.h"
+#include "plugin/instance/ProcessorInstance.h"
 
 namespace logtail {
 const std::string ProcessorSplitLogStringNative::sName = "processor_split_string_native";

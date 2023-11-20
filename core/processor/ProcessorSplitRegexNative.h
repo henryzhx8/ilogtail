@@ -16,13 +16,10 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "boost/regex.hpp"
 
-#include "plugin/interface/Processor.h"
-
 #include "file_server/MultilineOptions.h"
+#include "plugin/interface/Processor.h"
 
 namespace logtail {
 

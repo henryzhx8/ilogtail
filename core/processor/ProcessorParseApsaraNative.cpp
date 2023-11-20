@@ -15,13 +15,15 @@
  */
 
 #include "processor/ProcessorParseApsaraNative.h"
-#include "models/LogEvent.h"
-#include "app_config/AppConfig.h"
-#include "plugin/instance/ProcessorInstance.h"
-#include "monitor/MetricConstants.h"
-#include "common/ParamExtractor.h"
+
 #include <string>
+
+#include "app_config/AppConfig.h"
 #include "common/LogtailCommonFlags.h"
+#include "common/ParamExtractor.h"
+#include "models/LogEvent.h"
+#include "monitor/MetricConstants.h"
+#include "plugin/instance/ProcessorInstance.h"
 #include "processor/ProcessorParseTimestampNative.h"
 
 namespace logtail {

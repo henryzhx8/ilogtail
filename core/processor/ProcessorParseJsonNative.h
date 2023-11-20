@@ -16,6 +16,7 @@
 #pragma once
 
 #include "rapidjson/document.h"
+
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
 
