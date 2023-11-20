@@ -17,23 +17,23 @@ boot:
 testing_interval: 10s
 ilogtail:
   config:
-    - name: reader-flush-timeout-case
+    - name: reader-deleted
       detail:
         - inputs:
-            - Type: file_log
-              LogPath: /root/test
-              FilePattern: simple.log
-              ReaderFlushTimeout: 1
+            - Type: input_file
+              FilePaths: 
+                - /root/test/simple.log
+              FlushTimeoutSecs: 10000
           flushers:
             - Type: flusher_stdout
               OnlyStdout: false
               FileName: ./ilogtail.log
   close_wait: 10s
   mounts:
-    - "./a.log:/root/test/simple.log"
+    - "./volume:/root/test"
 verify:
   system_rules:
     - name: counter-check
       validator: sys_counter
       spec:
-        expect_minimum_flush_log_num: 5
+        expect_minimum_flush_log_num: 1
