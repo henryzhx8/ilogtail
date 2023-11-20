@@ -14,6 +14,7 @@
 
 #include "common/YamlUtil.h"
 #include "unittest/Unittest.h"
+#include <string>
 
 namespace logtail {
 
@@ -81,9 +82,6 @@ void YamlUtilUnittest::TestInvalidYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     EXPECT_FALSE(ret);
     APSARA_TEST_EQUAL_FATAL(errorMsg, "parse yaml failed: yaml-cpp: error at line 5, column 17: illegal map value");
 }
