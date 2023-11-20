@@ -14,12 +14,13 @@
 
 #include "config/NewConfig.h"
 
+#include <string>
+
 #include "common/Flags.h"
 #include "common/JsonUtil.h"
 #include "common/ParamExtractor.h"
 #include "common/YamlUtil.h"
 #include "plugin/PluginRegistry.h"
-#include <string>
 
 DEFINE_FLAG_BOOL(enable_env_ref_in_config, "enable environment variable reference replacement in configuration", false);
 

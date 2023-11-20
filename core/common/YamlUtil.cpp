@@ -14,8 +14,9 @@
 
 #include "common/YamlUtil.h"
 
-#include "common/ExceptionBase.h"
 #include <string>
+
+#include "common/ExceptionBase.h"
 
 namespace logtail {
 

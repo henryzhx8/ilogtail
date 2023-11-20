@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "common/YamlUtil.h"
 #include "unittest/Unittest.h"
+
 #include <string>
+
+#include "common/YamlUtil.h"
 
 namespace logtail {
 

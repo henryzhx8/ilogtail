@@ -14,9 +14,10 @@
 
 #pragma once
 
+#include <string>
+
 #include "json/json.h"
 #include "yaml-cpp/yaml.h"
-#include <string>
 
 namespace logtail {
 
