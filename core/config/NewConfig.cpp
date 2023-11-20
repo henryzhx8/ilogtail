@@ -366,8 +366,13 @@ bool ParseConfigDetail(const string& content, const string& extension, Json::Val
     if (extension == ".json") {
         return ParseConfig(content, detail, errorMsg);
     } else if (extension == ".yaml" || extension == ".yml") {
+        YAML::Node yamlRoot;
+        // 解析yaml
+        if (!ParseYamlConfig(content, yamlRoot, errorMsg)){
+            return false;
+        }
         // yaml 转 json
-        return ParseYamlConfig(content, detail, errorMsg);
+        return ParseYamlToJson(yamlRoot, detail, errorMsg);
     }
     return false;
 }

@@ -22,9 +22,23 @@ using namespace std;
 
 namespace logtail {
 
-bool ParseYamlConfig(const string& config, Json::Value& res, string& errorMsg) {
+bool ParseYamlConfig(const string& config, YAML::Node& yamlRoot, string& errorMsg) {
     try {
-        YAML::Node yamlRoot = YAML::Load(config); // 加载YAML配置
+        yamlRoot = YAML::Load(config); // 加载YAML配置
+        return true;
+    } catch (const YAML::ParserException& e) {
+        errorMsg = "parse yaml failed: " + string(e.what());
+        return false;
+    } catch (const exception& e) {
+        errorMsg = e.what();
+        return false;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool ParseYamlToJson(const YAML::Node& yamlRoot, Json::Value& res, string& errorMsg) {
+    try {
         res = ChangeYamlToJson(yamlRoot); // 将YAML转换为JSON
         return true;
     } catch (const YAML::ParserException& e) {
