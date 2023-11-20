@@ -20,7 +20,6 @@ namespace logtail {
 bool ParseYamlConfig(const std::string& config, YAML::Node& yamlRoot, std::string& errorMsg) {
     try {
         yamlRoot = YAML::Load(config);
-        return true;
     } catch (const YAML::ParserException& e) {
         errorMsg = "parse yaml failed: " + std::string(e.what());
         return false;
@@ -31,22 +30,7 @@ bool ParseYamlConfig(const std::string& config, YAML::Node& yamlRoot, std::strin
         errorMsg = "unknown error";
         return false;
     }
-}
-
-bool CovertYamlToJson(const YAML::Node& yamlRoot, Json::Value& res, std::string& errorMsg) {
-    try {
-        res = CovertYamlToJson(yamlRoot);
-        return true;
-    } catch (const YAML::ParserException& e) {
-        errorMsg = "parse yaml failed: " + std::string(e.what());
-        return false;
-    } catch (const std::exception& e) {
-        errorMsg = "unknown std::exception: " + std::string(e.what());
-        return false;
-    } catch (...) {
-        errorMsg = "unknown error";
-        return false;
-    }
+    return true;
 }
 
 Json::Value parseScalar(const YAML::Node& node) {

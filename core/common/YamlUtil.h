@@ -20,7 +20,6 @@
 namespace logtail {
 
 bool ParseYamlConfig(const std::string& config, YAML::Node& yamlRoot, std::string& errorMsg);
-bool CovertYamlToJson(const YAML::Node& yamlRoot, Json::Value& res, std::string& errorMsg);
 Json::Value CovertYamlToJson(const YAML::Node& rootNode);
 Json::Value parseScalar(const YAML::Node& node);
 

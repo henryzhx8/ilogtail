@@ -370,7 +370,8 @@ bool ParseConfigDetail(const string& content, const string& extension, Json::Val
         if (!ParseYamlConfig(content, yamlRoot, errorMsg)){
             return false;
         }
-        return CovertYamlToJson(yamlRoot, detail, errorMsg);
+        detail = CovertYamlToJson(yamlRoot);
+        return true;
     }
     return false;
 }
