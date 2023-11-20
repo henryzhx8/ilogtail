@@ -20,18 +20,14 @@ namespace logtail {
 
 class YamlUtilUnittest : public ::testing::Test {
 public:
-    void TestYamlToJson();
     void TestEmptyYaml();
     void TestInvalidYaml();
     void TestNestedYaml();
     void TestDifferentTypesYaml();
-    void TestSpecialCharactersYaml();
-    void TestComplexNestedYaml();
     void TestMultiLevelListYaml();
     void TestEmptyListAndDictYaml();
     void TestSpecialValuesYaml();
     void TestNestedNonScalarYaml();
-    void TestSpecialCharsYaml();
     void TestCommentYaml();
     void TestYamlSpecialMeaningChars();
     void TestMultiLineStringYaml();
@@ -44,35 +40,14 @@ public:
     void TestAnchorAndAliasYaml();
 };
 
-void YamlUtilUnittest::TestYamlToJson() {
-    std::string yaml = R"(
-            a: 1
-            b: 2
-            c: 3
-        )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
-    APSARA_TEST_TRUE_FATAL(ret);
-    APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 1);
-    APSARA_TEST_EQUAL_FATAL(json["b"].asInt(), 2);
-    APSARA_TEST_EQUAL_FATAL(json["c"].asInt(), 3);
-}
-
 void YamlUtilUnittest::TestEmptyYaml() {
     std::string yaml = "";
     Json::Value json;
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_TRUE_FATAL(json.isNull());
 }
 
@@ -92,21 +67,42 @@ void YamlUtilUnittest::TestInvalidYaml() {
 }
 
 void YamlUtilUnittest::TestNestedYaml() {
-    std::string yaml = R"(
+    {
+        std::string yaml = R"(
             a: 
                 b: 2
                 c: 3
         )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
         json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"]["b"].asInt(), 2);
+        APSARA_TEST_EQUAL_FATAL(json["a"]["c"].asInt(), 3);
     }
-    APSARA_TEST_TRUE_FATAL(ret);
-    APSARA_TEST_EQUAL_FATAL(json["a"]["b"].asInt(), 2);
-    APSARA_TEST_EQUAL_FATAL(json["a"]["c"].asInt(), 3);
+    {
+        std::string yaml = R"(
+            a: 
+                b: 
+                    c: 3
+                    d: 4
+                e: 5
+            f:
+                g: 6
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"]["b"]["c"].asInt(), 3);
+        APSARA_TEST_EQUAL_FATAL(json["a"]["b"]["d"].asInt(), 4);
+        APSARA_TEST_EQUAL_FATAL(json["a"]["e"].asInt(), 5);
+        APSARA_TEST_EQUAL_FATAL(json["f"]["g"].asInt(), 6);
+    }
 }
 
 void YamlUtilUnittest::TestDifferentTypesYaml() {
@@ -121,10 +117,8 @@ void YamlUtilUnittest::TestDifferentTypesYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 1);
     APSARA_TEST_EQUAL_FATAL(json["b"].asDouble(), 2.2);
     APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "3");
@@ -133,87 +127,6 @@ void YamlUtilUnittest::TestDifferentTypesYaml() {
     APSARA_TEST_EQUAL_FATAL(json["e"][0].asInt(), 1);
     APSARA_TEST_EQUAL_FATAL(json["e"][1].asInt(), 2);
     APSARA_TEST_EQUAL_FATAL(json["e"][2].asInt(), 3);
-}
-
-void YamlUtilUnittest::TestSpecialCharactersYaml() {
-    {
-        std::string yaml = R"(
-            a: "1\n2"
-            b: "3\t4"
-            c: "\u0001"
-        )";
-        Json::Value json;
-        std::string errorMsg;
-        YAML::Node yamlRoot;
-        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-        if (ret) {
-            json = CovertYamlToJson(yamlRoot);
-        }
-        APSARA_TEST_TRUE_FATAL(ret);
-        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "1\n2");
-        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "3\t4");
-        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "\u0001");
-    }
-    {
-        std::string yaml = R"(
-            a: 1\n2
-            b: 3\t4
-            c: \u0001
-        )";
-        Json::Value json;
-        std::string errorMsg;
-        YAML::Node yamlRoot;
-        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-        if (ret) {
-            json = CovertYamlToJson(yamlRoot);
-        }
-        APSARA_TEST_TRUE_FATAL(ret);
-        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "1\\n2");
-        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "3\\t4");
-        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "\\u0001");
-    }
-    {
-        std::string yaml = R"(
-            a: '1\n2'
-            b: '3\t4'
-            c: '\u0001'
-        )";
-        Json::Value json;
-        std::string errorMsg;
-        YAML::Node yamlRoot;
-        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-        if (ret) {
-            json = CovertYamlToJson(yamlRoot);
-        }
-        APSARA_TEST_TRUE_FATAL(ret);
-        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "1\\n2");
-        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "3\\t4");
-        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "\\u0001");
-    }
-}
-
-void YamlUtilUnittest::TestComplexNestedYaml() {
-    std::string yaml = R"(
-            a: 
-                b: 
-                    c: 3
-                    d: 4
-                e: 5
-            f:
-                g: 6
-        )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
-    APSARA_TEST_TRUE_FATAL(ret);
-    APSARA_TEST_EQUAL_FATAL(json["a"]["b"]["c"].asInt(), 3);
-    APSARA_TEST_EQUAL_FATAL(json["a"]["b"]["d"].asInt(), 4);
-    APSARA_TEST_EQUAL_FATAL(json["a"]["e"].asInt(), 5);
-    APSARA_TEST_EQUAL_FATAL(json["f"]["g"].asInt(), 6);
 }
 
 void YamlUtilUnittest::TestMultiLevelListYaml() {
@@ -229,10 +142,8 @@ void YamlUtilUnittest::TestMultiLevelListYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json[0].asString(), "a");
     APSARA_TEST_EQUAL_FATAL(json[1].asString(), "b");
     APSARA_TEST_EQUAL_FATAL(json[2][0].asString(), "c");
@@ -249,10 +160,8 @@ void YamlUtilUnittest::TestEmptyListAndDictYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_TRUE_FATAL(json["a"].empty());
     APSARA_TEST_TRUE_FATAL(json["a"].isArray());
     APSARA_TEST_TRUE_FATAL(json["b"].empty());
@@ -270,10 +179,8 @@ void YamlUtilUnittest::TestSpecialValuesYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_TRUE_FATAL(json["a"].isNull());
     APSARA_TEST_TRUE_FATAL(std::isnan(json["b"].asDouble()));
     APSARA_TEST_TRUE_FATAL(std::isinf(json["c"].asDouble()) && json["c"].asDouble() > 0);
@@ -292,30 +199,11 @@ void YamlUtilUnittest::TestNestedNonScalarYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"][0].asString(), "b");
     APSARA_TEST_EQUAL_FATAL(json["a"][1]["c"][0].asString(), "d");
     APSARA_TEST_EQUAL_FATAL(json["a"][1]["c"][1].asString(), "e");
-}
-
-void YamlUtilUnittest::TestSpecialCharsYaml() {
-    std::string yaml = R"(
-            a: "\t\n\r\b\f"
-            b: "\"\'\\"
-        )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
-    APSARA_TEST_TRUE_FATAL(ret);
-    APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "\t\n\r\b\f");
-    APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "\"\'\\");
 }
 
 void YamlUtilUnittest::TestCommentYaml() {
@@ -328,10 +216,8 @@ void YamlUtilUnittest::TestCommentYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 1);
     APSARA_TEST_EQUAL_FATAL(json["b"].asInt(), 2);
 }
@@ -345,10 +231,8 @@ void YamlUtilUnittest::TestYamlSpecialMeaningChars() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "---");
     APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "...");
 }
@@ -366,31 +250,92 @@ void YamlUtilUnittest::TestMultiLineStringYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "This is a\nmulti-line std::string.\n");
     APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "This is another multi-line std::string.\n");
 }
 
 void YamlUtilUnittest::TestDifferentStyleStringsYaml() {
-    std::string yaml = R"(
-            a: bare std::string
-            b: 'single quoted std::string'
-            c: "double quoted std::string"
+    {
+        std::string yaml = R"(
+            a: "\t\n\r\b\f"
+            b: "\"\'\\"
         )";
-    Json::Value json;
-    std::string errorMsg;
-    YAML::Node yamlRoot;
-    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
         json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "\t\n\r\b\f");
+        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "\"\'\\");
     }
-    APSARA_TEST_TRUE_FATAL(ret);
-    APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "bare std::string");
-    APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "single quoted std::string");
-    APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "double quoted std::string");
+    {
+        std::string yaml = R"(
+            a: bare std::string \t
+            b: 'single quoted std::string \t'
+            c: "double quoted std::string \t"
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "bare std::string \\t");
+        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "single quoted std::string \\t");
+        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "double quoted std::string \t");
+    }
+    {
+        std::string yaml = R"(
+            a: "1\n2"
+            b: "3\t4"
+            c: "\u0001"
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_TRUE_FATAL(ret);
+        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "1\n2");
+        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "3\t4");
+        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "\u0001");
+    }
+    {
+        std::string yaml = R"(
+            a: 1\n2
+            b: 3\t4
+            c: \u0001
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "1\\n2");
+        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "3\\t4");
+        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "\\u0001");
+    }
+    {
+        std::string yaml = R"(
+            a: '1\n2'
+            b: '3\t4'
+            c: '\u0001'
+        )";
+        Json::Value json;
+        std::string errorMsg;
+        YAML::Node yamlRoot;
+        bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+        APSARA_TEST_TRUE_FATAL(ret);
+        json = CovertYamlToJson(yamlRoot);
+        APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "1\\n2");
+        APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "3\\t4");
+        APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "\\u0001");
+    }
 }
 
 void YamlUtilUnittest::TestSpecialKeyValueYaml() {
@@ -402,10 +347,8 @@ void YamlUtilUnittest::TestSpecialKeyValueYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a:b"].asString(), "c,d");
     APSARA_TEST_EQUAL_FATAL(json["[e]"].asString(), "{f}");
 }
@@ -421,10 +364,8 @@ void YamlUtilUnittest::TestSpecialBooleanYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asBool(), true);
     APSARA_TEST_EQUAL_FATAL(json["b"].asBool(), false);
     APSARA_TEST_EQUAL_FATAL(json["c"].asBool(), true);
@@ -442,10 +383,8 @@ void YamlUtilUnittest::TestVariousNumberYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 12345);
     APSARA_TEST_EQUAL_FATAL(json["b"].asInt(), 0x12345);
     APSARA_TEST_EQUAL_FATAL(json["c"].asInt(), 012345);
@@ -462,10 +401,8 @@ void YamlUtilUnittest::TestTimeAndDateYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "2001-12-15T02:59:43.1Z");
     APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "2002-12-14");
     APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "23:59:59.999");
@@ -480,10 +417,8 @@ void YamlUtilUnittest::TestUnicodeYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "Schrödinger's cat");
     APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "中文");
 }
@@ -499,28 +434,22 @@ void YamlUtilUnittest::TestAnchorAndAliasYaml() {
     std::string errorMsg;
     YAML::Node yamlRoot;
     bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
-    if (ret) {
-        json = CovertYamlToJson(yamlRoot);
-    }
     APSARA_TEST_TRUE_FATAL(ret);
+    json = CovertYamlToJson(yamlRoot);
     APSARA_TEST_EQUAL_FATAL(json["a"]["b"].asInt(), 1);
     APSARA_TEST_EQUAL_FATAL(json["a"]["c"].asInt(), 2);
     APSARA_TEST_EQUAL_FATAL(json["d"]["b"].asInt(), 1);
     APSARA_TEST_EQUAL_FATAL(json["d"]["c"].asInt(), 2);
 }
 
-UNIT_TEST_CASE(YamlUtilUnittest, TestYamlToJson);
 UNIT_TEST_CASE(YamlUtilUnittest, TestEmptyYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestInvalidYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestNestedYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestDifferentTypesYaml);
-UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialCharactersYaml);
-UNIT_TEST_CASE(YamlUtilUnittest, TestComplexNestedYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestMultiLevelListYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestEmptyListAndDictYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialValuesYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestNestedNonScalarYaml);
-UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialCharsYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestCommentYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestYamlSpecialMeaningChars);
 UNIT_TEST_CASE(YamlUtilUnittest, TestMultiLineStringYaml);
