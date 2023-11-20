@@ -15,11 +15,12 @@
  */
 
 #pragma once
+#include <re2/re2.h>
+
+#include <boost/regex.hpp>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
-#include <boost/regex.hpp>
-#include <re2/re2.h>
 // #include "DockerFileConfig.h"
 // #include "common/EncodingConverter.h"
 // #include "common/LogstoreFeedbackQueue.h"
@@ -220,7 +221,7 @@ public:
 
     Config(const std::string& basePath,
            const std::string& filePattern,
-        //    LogType logType,
+           //    LogType logType,
            const std::string& logName,
            const std::string& logBeginReg,
            const std::string& logContinueReg,

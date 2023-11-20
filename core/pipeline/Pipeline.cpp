@@ -24,15 +24,15 @@
 #include "flusher/FlusherSLS.h"
 #include "go_pipeline/LogtailPlugin.h"
 #include "plugin/PluginRegistry.h"
-#include "processor/daemon/LogProcess.h"
+#include "processor/ProcessorParseApsaraNative.h"
 #include "processor/ProcessorSplitLogStringNative.h"
 #include "processor/ProcessorSplitRegexNative.h"
-#include "processor/ProcessorParseApsaraNative.h"
 #include "processor/ProcessorTagNative.h"
+#include "processor/daemon/LogProcess.h"
 
 // for special treatment
-#include "input/InputFile.h"
 #include "file_server/MultilineOptions.h"
+#include "input/InputFile.h"
 
 DECLARE_FLAG_INT32(default_plugin_log_queue_size);
 
@@ -84,8 +84,8 @@ bool Pipeline::Init(NewConfig&& config) {
 
     if (config.IsProcessRunnerInvolved()) {
         Json::Value detail;
-        unique_ptr<ProcessorInstance> processor = PluginRegistry::GetInstance()->CreateProcessor(
-            ProcessorTagNative::sName, to_string(++pluginIndex));
+        unique_ptr<ProcessorInstance> processor
+            = PluginRegistry::GetInstance()->CreateProcessor(ProcessorTagNative::sName, to_string(++pluginIndex));
         if (!processor->Init(detail, mContext)) {
             // should not happen
             return false;

@@ -19,9 +19,8 @@
 #include <string>
 #include <utility>
 
-#include "json/json.h"
 #include "boost/regex.hpp"
-
+#include "json/json.h"
 #include "pipeline/PipelineContext.h"
 
 namespace logtail {
@@ -39,6 +38,7 @@ public:
     std::shared_ptr<boost::regex> mStartPatternRegPtr;
     std::shared_ptr<boost::regex> mContinuePatternRegPtr;
     std::shared_ptr<boost::regex> mEndPatternRegPtr;
+
     Mode mMode = Mode::CUSTOM;
     std::string mStartPattern;
     std::string mContinuePattern;

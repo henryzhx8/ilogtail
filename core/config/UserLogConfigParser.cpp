@@ -13,14 +13,16 @@
 // limitations under the License.
 
 #include "UserLogConfigParser.h"
-#include <vector>
+
 #include <boost/filesystem.hpp>
+#include <vector>
+
+#include "Config.h"
+#include "common/ExceptionBase.h"
 #include "common/FileSystemUtil.h"
 #include "common/JsonUtil.h"
-#include "common/ExceptionBase.h"
 #include "common/LogtailCommonFlags.h"
 #include "logger/Logger.h"
-#include "Config.h"
 
 namespace logtail {
 
@@ -43,7 +45,8 @@ namespace logtail {
 //     //         cfg.mAdvancedConfig.mForceMultiConfig = val.asBool();
 //     //         LOG_INFO(sLogger,
 //     //                  ("set force multi config",
-//     //                   cfg.mAdvancedConfig.mForceMultiConfig)("project", cfg.mProjectName)("config", cfg.mConfigName));
+//     //                   cfg.mAdvancedConfig.mForceMultiConfig)("project", cfg.mProjectName)("config",
+//     cfg.mConfigName));
 //     //     }
 //     // }
 //     // support extract partial fields in DELIMITER_LOG mode
@@ -67,7 +70,8 @@ namespace logtail {
 //     //         cfg.mAdvancedConfig.mPassTagsToPlugin = val.asBool();
 //     //         LOG_INFO(sLogger,
 //     //                  ("passing tags to plugin",
-//     //                   cfg.mAdvancedConfig.mPassTagsToPlugin)("project", cfg.mProjectName)("logstore", cfg.mCategory));
+//     //                   cfg.mAdvancedConfig.mPassTagsToPlugin)("project", cfg.mProjectName)("logstore",
+//     cfg.mCategory));
 //     //     }
 //     // }
 
@@ -113,7 +117,8 @@ namespace logtail {
 //     //     const Json::Value& val = advancedVal["close_unused_reader_interval"];
 //     //     if (val.isInt()) {
 //     //         cfg.mAdvancedConfig.mCloseUnusedReaderInterval = val.asInt();
-//     //         LOG_INFO(sLogger, ("set close unused reader interval", cfg.mAdvancedConfig.mCloseUnusedReaderInterval));
+//     //         LOG_INFO(sLogger, ("set close unused reader interval",
+//     cfg.mAdvancedConfig.mCloseUnusedReaderInterval));
 //     //     }
 //     // }
 //     // exactly once
@@ -157,8 +162,10 @@ namespace logtail {
 //     }
 //     // precise_timestamp
 //     {
-//         // if (advancedVal.isMember("enable_timestamp_nanosecond") && advancedVal["enable_timestamp_nanosecond"].isBool()) {
-//         //     cfg.mAdvancedConfig.mEnableTimestampNanosecond = GetBoolValue(advancedVal, "enable_timestamp_nanosecond");
+//         // if (advancedVal.isMember("enable_timestamp_nanosecond") &&
+//         advancedVal["enable_timestamp_nanosecond"].isBool()) {
+//         //     cfg.mAdvancedConfig.mEnableTimestampNanosecond = GetBoolValue(advancedVal,
+//         "enable_timestamp_nanosecond");
 //         // }
 //         // Deprecated
 //         if (advancedVal.isMember("enable_precise_timestamp") && advancedVal["enable_precise_timestamp"].isBool()) {
@@ -206,8 +213,10 @@ namespace logtail {
 
 //     // support adjust microtime timezone
 //     if (cfg.mLogType == APSARA_LOG) {
-//         if (advancedVal.isMember("adjust_apsara_micro_timezone") && advancedVal["adjust_apsara_micro_timezone"].isBool()) {
-//             cfg.mAdvancedConfig.mAdjustApsaraMicroTimezone = GetBoolValue(advancedVal, "adjust_apsara_micro_timezone");
+//         if (advancedVal.isMember("adjust_apsara_micro_timezone") &&
+//         advancedVal["adjust_apsara_micro_timezone"].isBool()) {
+//             cfg.mAdvancedConfig.mAdjustApsaraMicroTimezone = GetBoolValue(advancedVal,
+//             "adjust_apsara_micro_timezone");
 //         }
 //     }
 // }
