@@ -38,6 +38,10 @@ public:
     void TestDifferentStyleStringsYaml();
     void TestSpecialKeyValueYaml();
     void TestSpecialBooleanYaml();
+    void TestVariousNumberYaml();
+    void TestTimeAndDateYaml();
+    void TestUnicodeYaml();
+    void TestAnchorAndAliasYaml();
 };
 
 void YamlUtilUnittest::TestYamlToJson() {
@@ -427,6 +431,84 @@ void YamlUtilUnittest::TestSpecialBooleanYaml() {
     APSARA_TEST_EQUAL_FATAL(json["d"].asBool(), false);
 }
 
+void YamlUtilUnittest::TestVariousNumberYaml() {
+    std::string yaml = R"(
+            a: 12345
+            b: 0x12345
+            c: 012345
+            d: 1.2345e+3
+        )";
+    Json::Value json;
+    std::string errorMsg;
+    YAML::Node yamlRoot;
+    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+    if (ret) {
+        json = CovertYamlToJson(yamlRoot);
+    }
+    APSARA_TEST_TRUE_FATAL(ret);
+    APSARA_TEST_EQUAL_FATAL(json["a"].asInt(), 12345);
+    APSARA_TEST_EQUAL_FATAL(json["b"].asInt(), 0x12345);
+    APSARA_TEST_EQUAL_FATAL(json["c"].asInt(), 012345);
+    APSARA_TEST_EQUAL_FATAL(json["d"].asDouble(), 1.2345e+3);
+}
+
+void YamlUtilUnittest::TestTimeAndDateYaml() {
+    std::string yaml = R"(
+            a: 2001-12-15T02:59:43.1Z
+            b: 2002-12-14
+            c: 23:59:59.999
+        )";
+    Json::Value json;
+    std::string errorMsg;
+    YAML::Node yamlRoot;
+    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+    if (ret) {
+        json = CovertYamlToJson(yamlRoot);
+    }
+    APSARA_TEST_TRUE_FATAL(ret);
+    APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "2001-12-15T02:59:43.1Z");
+    APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "2002-12-14");
+    APSARA_TEST_EQUAL_FATAL(json["c"].asString(), "23:59:59.999");
+}
+
+void YamlUtilUnittest::TestUnicodeYaml() {
+    std::string yaml = R"(
+            a: "Schrödinger's cat"
+            b: "\u4E2D\u6587"
+        )";
+    Json::Value json;
+    std::string errorMsg;
+    YAML::Node yamlRoot;
+    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+    if (ret) {
+        json = CovertYamlToJson(yamlRoot);
+    }
+    APSARA_TEST_TRUE_FATAL(ret);
+    APSARA_TEST_EQUAL_FATAL(json["a"].asString(), "Schrödinger's cat");
+    APSARA_TEST_EQUAL_FATAL(json["b"].asString(), "中文");
+}
+
+void YamlUtilUnittest::TestAnchorAndAliasYaml() {
+    std::string yaml = R"(
+            a: &anchor
+                b: 1
+                c: 2
+            d: *anchor
+        )";
+    Json::Value json;
+    std::string errorMsg;
+    YAML::Node yamlRoot;
+    bool ret = ParseYamlConfig(yaml, yamlRoot, errorMsg);
+    if (ret) {
+        json = CovertYamlToJson(yamlRoot);
+    }
+    APSARA_TEST_TRUE_FATAL(ret);
+    APSARA_TEST_EQUAL_FATAL(json["a"]["b"].asInt(), 1);
+    APSARA_TEST_EQUAL_FATAL(json["a"]["c"].asInt(), 2);
+    APSARA_TEST_EQUAL_FATAL(json["d"]["b"].asInt(), 1);
+    APSARA_TEST_EQUAL_FATAL(json["d"]["c"].asInt(), 2);
+}
+
 UNIT_TEST_CASE(YamlUtilUnittest, TestYamlToJson);
 UNIT_TEST_CASE(YamlUtilUnittest, TestEmptyYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestInvalidYaml);
@@ -445,6 +527,10 @@ UNIT_TEST_CASE(YamlUtilUnittest, TestMultiLineStringYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestDifferentStyleStringsYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialKeyValueYaml);
 UNIT_TEST_CASE(YamlUtilUnittest, TestSpecialBooleanYaml);
+UNIT_TEST_CASE(YamlUtilUnittest, TestVariousNumberYaml);
+UNIT_TEST_CASE(YamlUtilUnittest, TestTimeAndDateYaml);
+UNIT_TEST_CASE(YamlUtilUnittest, TestUnicodeYaml);
+UNIT_TEST_CASE(YamlUtilUnittest, TestAnchorAndAliasYaml);
 } // namespace logtail
 
 UNIT_TEST_MAIN
