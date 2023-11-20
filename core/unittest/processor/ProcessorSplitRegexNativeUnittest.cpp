@@ -13,12 +13,13 @@
 // limitations under the License.
 
 #include <cstdlib>
-#include "unittest/Unittest.h"
+
 #include "common/Constants.h"
 #include "common/JsonUtil.h"
 #include "config/Config.h"
-#include "processor/ProcessorSplitRegexNative.h"
 #include "models/LogEvent.h"
+#include "processor/ProcessorSplitRegexNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
@@ -32,9 +33,7 @@ const std::string LOG_UNMATCH = "unmatch log";
 
 class ProcessorSplitRegexNativeUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
 
     void TestInit();
     void TestProcessEventSingleLine();
@@ -537,9 +536,7 @@ void ProcessorSplitRegexNativeUnittest::TestProcess() {
 
 class ProcessorSplitRegexDisacardUnmatchUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
 
     void TestLogSplitWithBeginContinue();
     void TestLogSplitWithBeginEnd();
@@ -1187,9 +1184,7 @@ void ProcessorSplitRegexDisacardUnmatchUnittest::TestLogSplitWithEnd() {
 
 class ProcessorSplitRegexKeepUnmatchUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
 
     void TestLogSplitWithBeginContinue();
     void TestLogSplitWithBeginEnd();

@@ -15,10 +15,9 @@
  */
 #pragma once
 
-#include "rapidjson/document.h"
-
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
+#include "rapidjson/document.h"
 
 namespace logtail {
 

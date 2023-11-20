@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #include <cstdlib>
-#include "unittest/Unittest.h"
 
 #include "common/JsonUtil.h"
 #include "config/Config.h"
-#include "processor/ProcessorParseApsaraNative.h"
 #include "models/LogEvent.h"
 #include "plugin/instance/ProcessorInstance.h"
+#include "processor/ProcessorParseApsaraNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
@@ -62,7 +62,7 @@ void ProcessorParseApsaraNativeUnittest::TestInit() {
     config["Timezone"] = "";
 
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
-    processor.SetContext(mContext);    
+    processor.SetContext(mContext);
     std::string pluginId = "testID";
     ProcessorInstance processorInstance(&processor, pluginId);
     APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
@@ -115,7 +115,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessWholeLine() {
     eventGroup.FromJsonString(inJson);
     // run function
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
-    processor.SetContext(mContext);    
+    processor.SetContext(mContext);
     std::string pluginId = "testID";
     ProcessorInstance processorInstance(&processor, pluginId);
     APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
@@ -216,7 +216,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessWholeLinePart() {
     eventGroup.FromJsonString(inJson);
     // run function
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
-    processor.SetContext(mContext);    
+    processor.SetContext(mContext);
     std::string pluginId = "testID";
     ProcessorInstance processorInstance(&processor, pluginId);
     APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
@@ -273,7 +273,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessKeyOverwritten() {
     eventGroup.FromJsonString(inJson);
     // run function
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
-    processor.SetContext(mContext);    
+    processor.SetContext(mContext);
     std::string pluginId = "testID";
     ProcessorInstance processorInstance(&processor, pluginId);
     APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
@@ -352,7 +352,7 @@ void ProcessorParseApsaraNativeUnittest::TestUploadRawLog() {
     eventGroup.FromJsonString(inJson);
     // run function
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
-    processor.SetContext(mContext);    
+    processor.SetContext(mContext);
     std::string pluginId = "testID";
     ProcessorInstance processorInstance(&processor, pluginId);
     APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
@@ -403,7 +403,7 @@ void ProcessorParseApsaraNativeUnittest::TestAddLog() {
     config["RenamedSourceKey"] = "__raw__";
 
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
-    processor.SetContext(mContext);    
+    processor.SetContext(mContext);
     std::string pluginId = "testID";
     ProcessorInstance processorInstance(&processor, pluginId);
     APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
@@ -553,10 +553,10 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
     APSARA_TEST_EQUAL_FATAL(count, processor.GetContext().GetProcessProfile().parseFailures);
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcInRecordsTotal->GetValue());
     std::string expectValue = "value1";
-    APSARA_TEST_EQUAL_FATAL((expectValue.length())*count, processor.mProcParseInSizeBytes->GetValue());
+    APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcOutRecordsTotal->GetValue());
     expectValue = "__raw_log__value1";
-    APSARA_TEST_EQUAL_FATAL((expectValue.length())*count, processor.mProcParseOutSizeBytes->GetValue());
+    APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseOutSizeBytes->GetValue());
 
     APSARA_TEST_EQUAL_FATAL(0, processor.mProcDiscardRecordsTotal->GetValue());
 
@@ -639,7 +639,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventDiscardUnmatch() {
     APSARA_TEST_EQUAL_FATAL(count, processor.GetContext().GetProcessProfile().parseFailures);
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcInRecordsTotal->GetValue());
     std::string expectValue = "value1";
-    APSARA_TEST_EQUAL_FATAL((expectValue.length())*count, processor.mProcParseInSizeBytes->GetValue());
+    APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     // discard unmatch, so output is 0
     APSARA_TEST_EQUAL_FATAL(0, processorInstance.mProcOutRecordsTotal->GetValue());
     APSARA_TEST_EQUAL_FATAL(0, processor.mProcParseOutSizeBytes->GetValue());

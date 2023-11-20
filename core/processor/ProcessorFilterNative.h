@@ -167,9 +167,9 @@ private:
     BaseFilterNodePtr child;
 };
 
-static BaseFilterNodePtr ParseExpressionFromJSON(const Json::Value& value);
-static bool GetOperatorType(const std::string& type, FilterOperator& op);
-static bool GetNodeFuncType(const std::string& type, FilterNodeFunctionType& func);
+BaseFilterNodePtr ParseExpressionFromJSON(const Json::Value& value);
+bool GetOperatorType(const std::string& type, FilterOperator& op);
+bool GetNodeFuncType(const std::string& type, FilterNodeFunctionType& func);
 
 class ProcessorFilterNative : public Processor {
 public:

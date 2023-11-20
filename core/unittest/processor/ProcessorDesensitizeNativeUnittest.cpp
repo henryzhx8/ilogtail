@@ -11,19 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "unittest/Unittest.h"
 #include "common/JsonUtil.h"
-#include "processor/ProcessorDesensitizeNative.h"
 #include "models/LogEvent.h"
 #include "plugin/instance/ProcessorInstance.h"
+#include "processor/ProcessorDesensitizeNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
 class ProcessorDesensitizeNativeUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
     Json::Value GetCastSensWordConfig(std::string, std::string, std::string, std::string, std::string, bool);
     void TestInit();
     void TestCastSensWordConst();
@@ -46,13 +44,13 @@ UNIT_TEST_CASE(ProcessorDesensitizeNativeUnittest, TestCastSensWordLoggroup);
 
 UNIT_TEST_CASE(ProcessorDesensitizeNativeUnittest, TestCastSensWordMulti);
 
-Json::Value ProcessorDesensitizeNativeUnittest::GetCastSensWordConfig(std::string sourceKey = std::string("cast1"),
-                                                                      std::string method = "const",
-                                                                      std::string replacingString = std::string("********"),
-                                                                      std::string contentPatternBeforeReplacedString
-                                                                      = "pwd=",
-                                                                      std::string replacedContentPattern = "[^,]+",
-                                                                      bool replaceAll = false) {
+Json::Value
+ProcessorDesensitizeNativeUnittest::GetCastSensWordConfig(std::string sourceKey = std::string("cast1"),
+                                                          std::string method = "const",
+                                                          std::string replacingString = std::string("********"),
+                                                          std::string contentPatternBeforeReplacedString = "pwd=",
+                                                          std::string replacedContentPattern = "[^,]+",
+                                                          bool replaceAll = false) {
     Json::Value config;
     config["SourceKey"] = Json::Value(sourceKey);
     config["Method"] = Json::Value(method);

@@ -19,13 +19,14 @@
 #include <boost/regex.hpp>
 #include <map>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <utility>
-#include "common/LogstoreFeedbackQueue.h"
-#include "common/LogRunnable.h"
-#include "common/Thread.h"
+#include <vector>
+
 #include "common/Lock.h"
+#include "common/LogRunnable.h"
+#include "common/LogstoreFeedbackQueue.h"
+#include "common/Thread.h"
 #include "log_pb/sls_logs.pb.h"
 #include "pipeline/PipelineContext.h"
 #include "reader/LogFileReader.h"

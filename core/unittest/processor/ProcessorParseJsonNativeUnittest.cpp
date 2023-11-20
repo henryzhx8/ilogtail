@@ -12,21 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <cstdlib>
-#include "unittest/Unittest.h"
 
 #include "common/JsonUtil.h"
 #include "config/Config.h"
-#include "processor/ProcessorParseJsonNative.h"
 #include "models/LogEvent.h"
 #include "plugin/instance/ProcessorInstance.h"
+#include "processor/ProcessorParseJsonNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
 class ProcessorParseJsonNativeUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
 
     void TestInit();
     void TestProcessJson();

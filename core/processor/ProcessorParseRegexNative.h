@@ -17,7 +17,6 @@
 #pragma once
 
 #include "boost/regex.hpp"
-
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
 

@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "unittest/Unittest.h"
-#include "common/JsonUtil.h"
-#include "processor/ProcessorFilterNative.h"
-#include "plugin/instance/ProcessorInstance.h"
 #include "common/ExceptionBase.h"
+#include "common/JsonUtil.h"
 #include "config/UserLogConfigParser.h"
+#include "plugin/instance/ProcessorInstance.h"
+#include "processor/ProcessorFilterNative.h"
+#include "unittest/Unittest.h"
 
 using boost::regex;
 
@@ -26,9 +26,7 @@ namespace logtail {
 
 class ProcessorFilterNativeUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
 
     void TestLogFilterRule();
     void TestBaseFilter();
@@ -740,7 +738,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr2[i - 50] = rand() & 0xff;
             randArr2[i - 50] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr2[i - 50] == 32);
-        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
+        characterSet[i]
+            = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = true;
@@ -751,7 +750,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr3[i - 50] = rand() & 0xff;
             randArr3[i - 50] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr3[i - 50] == 32);
-        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
+        characterSet[i]
+            = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = false;
@@ -765,7 +765,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr3[i - 50] = rand() & 0xff;
             randArr3[i - 50] &= 0x7f; // second bytes is 0xxx xxxx
         } while (randArr3[i - 50] == 32 || randArr2[i - 50] == 32);
-        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
+        characterSet[i]
+            = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = false;
@@ -776,7 +777,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
         randArr1[i - 50] &= 0xf0;
         randArr2[i - 50] &= 0xdf; // 1110 0000  100xxxxx 10xxxxxx
 
-        characterSet[i] = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
+        characterSet[i]
+            = std::string(1, randArr1[i - 50]) + std::string(1, randArr2[i - 50]) + std::string(1, randArr3[i - 50]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = true;
@@ -839,8 +841,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr2[i - 70] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr2[i - 70] == 32);
 
-        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
-            + std::string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70])
+            + std::string(1, randArr3[i - 70]) + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = true;
@@ -852,8 +854,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr3[i - 70] = rand() & 0xff;
             randArr3[i - 70] &= 0x7f; // second bytes is 0xxx xxxx;
         } while (randArr3[i - 70] == 32);
-        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
-            + std::string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70])
+            + std::string(1, randArr3[i - 70]) + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = false;
@@ -870,8 +872,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
             randArr4[i - 70] = rand() & 0xff;
             randArr4[i - 70] &= 0x7f; // second bytes is 0xxx xxxx
         } while (randArr4[i - 70] == 32 || randArr2[i - 70] == 32 || randArr3[i - 70] == 32);
-        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
-            + std::string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70])
+            + std::string(1, randArr3[i - 70]) + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = false;
         isBlunk[i][2] = false;
@@ -884,8 +886,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
     for (int i = 76; i < 78; ++i) {
         randArr1[i - 70] &= 0xf0;
         randArr2[i - 70] &= 0x8f; // 1110 0000  100xxxxx 10xxxxxx
-        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
-            + std::string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70])
+            + std::string(1, randArr3[i - 70]) + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = true;
@@ -897,8 +899,8 @@ void ProcessorFilterNativeUnittest::TestFilterNoneUtf8() {
         randArr1[i - 70] |= 0x04;
         randArr2[i - 70] |= 0x10; // 1110 0000  100xxxxx 10xxxxxx
 
-        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70]) + std::string(1, randArr3[i - 70])
-            + std::string(1, randArr4[i - 70]);
+        characterSet[i] = std::string(1, randArr1[i - 70]) + std::string(1, randArr2[i - 70])
+            + std::string(1, randArr3[i - 70]) + std::string(1, randArr4[i - 70]);
         isBlunk[i][0] = true;
         isBlunk[i][1] = true;
         isBlunk[i][2] = true;

@@ -13,12 +13,13 @@
 // limitations under the License.
 
 #include <cstdlib>
-#include "unittest/Unittest.h"
+
 #include "common/Constants.h"
 #include "config/Config.h"
 #include "config_manager/ConfigManager.h"
-#include "processor/ProcessorTagNative.h"
 #include "pipeline/Pipeline.h"
+#include "processor/ProcessorTagNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
