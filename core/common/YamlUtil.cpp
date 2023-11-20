@@ -87,7 +87,7 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
             return parseScalar(rootNode);
 
         case YAML::NodeType::Sequence: {
-            resultJson = Json::Value(Json::arrayValue); // 明确地创建一个空数组
+            resultJson = Json::Value(Json::arrayValue); // create an empty array
             int i = 0;
             for (auto&& node : rootNode) {
                 resultJson[i] = CovertYamlToJson(node);
@@ -97,7 +97,7 @@ Json::Value CovertYamlToJson(const YAML::Node& rootNode) {
         }
 
         case YAML::NodeType::Map: {
-            resultJson = Json::Value(Json::objectValue); // 明确地创建一个空对象
+            resultJson = Json::Value(Json::objectValue); // create an empty object
             for (auto&& it : rootNode) {
                 resultJson[it.first.as<std::string>()] = CovertYamlToJson(it.second);
             }
