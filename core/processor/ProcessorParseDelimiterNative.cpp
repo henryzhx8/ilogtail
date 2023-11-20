@@ -35,7 +35,7 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     if (!GetMandatoryStringParam(config, "Separator", mSeparator, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
-    if(mSeparator.size() > 3) {
+    if (mSeparator.size() > 3) {
         errorMsg = "Separator length should be no more than 3";
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }

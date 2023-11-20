@@ -15,19 +15,17 @@
 #include <cstdlib>
 #include <sstream>
 
-#include "unittest/Unittest.h"
 #include "common/Constants.h"
 #include "common/JsonUtil.h"
 #include "config/Config.h"
 #include "processor/ProcessorSplitLogStringNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
 class ProcessorSplitLogStringNativeUnittest : public ::testing::Test {
 public:
-    void SetUp() override {
-        mContext.SetConfigName("project##config_0");
-    }
+    void SetUp() override { mContext.SetConfigName("project##config_0"); }
 
     void TestInit();
     void TestProcessJson();

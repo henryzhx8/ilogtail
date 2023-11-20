@@ -26,22 +26,6 @@ namespace logtail {
 const std::string ProcessorParseTimestampNative::sName = "processor_parse_timestamp_native";
 const std::string ProcessorParseTimestampNative::PRECISE_TIMESTAMP_DEFAULT_KEY = "precise_timestamp";
 
-bool ProcessorParseTimestampNative::ParseTimeZoneOffsetSecond(const std::string& logTZ, int& logTZSecond) {
-    if (logTZ.size() != strlen("GMT+08:00") || logTZ[6] != ':' || (logTZ[3] != '+' && logTZ[3] != '-')) {
-        return false;
-    }
-    if (logTZ.find("GMT") != (size_t)0) {
-        return false;
-    }
-    std::string hourStr = logTZ.substr(4, 2);
-    std::string minitueStr = logTZ.substr(7, 2);
-    logTZSecond = StringTo<int>(hourStr) * 3600 + StringTo<int>(minitueStr) * 60;
-    if (logTZ[3] == '-') {
-        logTZSecond = -logTZSecond;
-    }
-    return true;
-}
-
 bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     std::string errorMsg;
     if (!GetMandatoryStringParam(config, "SourceKey", mSourceKey, errorMsg)) {
@@ -55,30 +39,6 @@ bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     }
     if (!GetOptionalIntParam(config, "SourceYear", mSourceYear, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSourceYear, sName, mContext->GetConfigName());
-    }
-    mLegacyPreciseTimestampConfig.enabled = false;
-    if (IsExist(config, "PreciseTimestampKey")) {
-        mLegacyPreciseTimestampConfig.enabled = true;
-
-        std::string preciseTimestampKey = PRECISE_TIMESTAMP_DEFAULT_KEY;
-        if (!GetOptionalStringParam(config, "PreciseTimestampKey", preciseTimestampKey, errorMsg)) {
-            PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, preciseTimestampKey, sName, mContext->GetConfigName());
-        }
-        mLegacyPreciseTimestampConfig.key = preciseTimestampKey;
-
-        std::string preciseTimestampUnit = "";
-        if (!GetOptionalStringParam(config, "PreciseTimestampUnit", preciseTimestampUnit, errorMsg)) {
-            PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, preciseTimestampUnit, sName, mContext->GetConfigName());
-        }
-        if (0 == preciseTimestampUnit.compare("ms")) {
-            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MILLISECOND;
-        } else if (0 == preciseTimestampUnit.compare("us")) {
-            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MICROSECOND;
-        } else if (0 == preciseTimestampUnit.compare("ns")) {
-            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::NANOSECOND;
-        } else {
-            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MILLISECOND;
-        }        
     }
 
     if (mSourceTimezone != "") {
@@ -130,7 +90,10 @@ bool ProcessorParseTimestampNative::IsSupportedEvent(const PipelineEventPtr& e) 
     return e.Is<LogEvent>();
 }
 
-bool ProcessorParseTimestampNative::ProcessEvent(StringView logPath, PipelineEventPtr& e, LogtailTime& logTime, StringView& timeStrCache) {
+bool ProcessorParseTimestampNative::ProcessEvent(StringView logPath,
+                                                 PipelineEventPtr& e,
+                                                 LogtailTime& logTime,
+                                                 StringView& timeStrCache) {
     if (!IsSupportedEvent(e)) {
         return true;
     }
@@ -170,11 +133,6 @@ bool ProcessorParseTimestampNative::ProcessEvent(StringView logPath, PipelineEve
         return false;
     }
     sourceEvent.SetTimestamp(logTime.tv_sec, logTime.tv_nsec);
-    if (mLegacyPreciseTimestampConfig.enabled) {
-        StringBuffer sb = sourceEvent.GetSourceBuffer()->AllocateStringBuffer(20);
-        sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%lu", preciseTimestamp));
-        sourceEvent.SetContentNoCopy(mLegacyPreciseTimestampConfig.key, StringView(sb.data, sb.size));
-    }
     mProcParseOutSizeBytes->Add(sizeof(logTime.tv_sec) + sizeof(logTime.tv_nsec));
     return true;
 }
@@ -225,14 +183,6 @@ bool ProcessorParseTimestampNative::ParseLogTime(const StringView& curTimeStr, /
         mProcParseErrorTotal->Add(1);
         ++(*mParseTimeFailures);
         return false;
-    }
-
-    if (mLegacyPreciseTimestampConfig.enabled) {
-        if (nanosecondLength < 0) {
-            preciseTimestamp = GetPreciseTimestamp(logTime.tv_sec, strptimeResult, mLegacyPreciseTimestampConfig);
-        } else {
-            preciseTimestamp = GetPreciseTimestampFromLogtailTime(logTime, mLegacyPreciseTimestampConfig);
-        }
     }
     return true;
 }

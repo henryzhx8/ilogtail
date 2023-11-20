@@ -13,37 +13,40 @@
 // limitations under the License.
 
 #include "LogProcess.h"
-#include <algorithm>
-#include <time.h>
+
 #include <sys/types.h>
+#include <time.h>
+
+#include <algorithm>
+
 #if defined(__linux__)
 #include <sys/syscall.h>
 #include <unistd.h>
 #endif
+#include "aggregator/Aggregator.h"
+#include "app_config/AppConfig.h"
 #include "common/Constants.h"
-#include "common/TimeUtil.h"
-#include "common/LogtailCommonFlags.h"
+#include "common/LogFileCollectOffsetIndicator.h"
 #include "common/LogGroupContext.h"
-#include "go_pipeline/LogtailPlugin.h"
-#include "models/PipelineEventGroup.h"
-#include "pipeline/PipelineManager.h"
-#include "monitor/Monitor.h"
-#include "parser/LogParser.h"
-#include "sdk/Client.h"
-#include "sender/Sender.h"
-#include "log_pb/sls_logs.pb.h"
+#include "common/LogtailCommonFlags.h"
 #include "common/StringTools.h"
-#include "monitor/LogtailAlarm.h"
+#include "common/TimeUtil.h"
+#include "config/IntegrityConfig.h"
+#include "config_manager/ConfigManager.h"
+#include "fuse/FuseFileBlacklist.h"
+#include "go_pipeline/LogtailPlugin.h"
+#include "log_pb/sls_logs.pb.h"
+#include "logger/Logger.h"
+#include "models/PipelineEventGroup.h"
+#include "monitor/LogFileProfiler.h"
 #include "monitor/LogIntegrity.h"
 #include "monitor/LogLineCount.h"
-#include "config/IntegrityConfig.h"
-#include "app_config/AppConfig.h"
-#include "monitor/LogFileProfiler.h"
-#include "config_manager/ConfigManager.h"
-#include "logger/Logger.h"
-#include "aggregator/Aggregator.h"
-#include "fuse/FuseFileBlacklist.h"
-#include "common/LogFileCollectOffsetIndicator.h"
+#include "monitor/LogtailAlarm.h"
+#include "monitor/Monitor.h"
+#include "parser/LogParser.h"
+#include "pipeline/PipelineManager.h"
+#include "sdk/Client.h"
+#include "sender/Sender.h"
 #ifdef __ENTERPRISE__
 #include "config/provider/EnterpriseConfigProvider.h"
 #endif
@@ -500,7 +503,8 @@ void LogProcess::FillEventGroupMetadata(LogBuffer& logBuffer, PipelineEventGroup
 #ifdef __ENTERPRISE__
     std::string agentTag = EnterpriseConfigProvider::GetInstance()->GetUserDefinedIdSet();
     if (!agentTag.empty()) {
-        eventGroup.SetMetadata(EventGroupMetaKey::AGENT_TAG, EnterpriseConfigProvider::GetInstance()->GetUserDefinedIdSet());
+        eventGroup.SetMetadata(EventGroupMetaKey::AGENT_TAG,
+                               EnterpriseConfigProvider::GetInstance()->GetUserDefinedIdSet());
     }
 #endif
     eventGroup.SetMetadataNoCopy(EventGroupMetaKey::HOST_IP, LogFileProfiler::mIpAddr);

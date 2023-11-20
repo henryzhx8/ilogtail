@@ -17,7 +17,6 @@
 #pragma once
 
 #include "boost/regex.hpp"
-
 #include "file_server/MultilineOptions.h"
 #include "plugin/interface/Processor.h"
 

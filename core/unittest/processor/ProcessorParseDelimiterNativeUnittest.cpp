@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #include <cstdlib>
-#include "unittest/Unittest.h"
 
 #include "common/JsonUtil.h"
 #include "config/Config.h"
-#include "processor/ProcessorParseDelimiterNative.h"
 #include "models/LogEvent.h"
 #include "plugin/instance/ProcessorInstance.h"
+#include "processor/ProcessorParseDelimiterNative.h"
+#include "unittest/Unittest.h"
 
 namespace logtail {
 
@@ -56,7 +56,7 @@ void ProcessorParseDelimiterNativeUnittest::TestAllowingShortenedFields() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -137,7 +137,7 @@ void ProcessorParseDelimiterNativeUnittest::TestInit() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -159,7 +159,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessWholeLine() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
     config["Keys"].append("method");
@@ -242,7 +242,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessQuote() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -344,7 +344,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessKeyOverwritten() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -428,7 +428,7 @@ void ProcessorParseDelimiterNativeUnittest::TestUploadRawLog() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -513,7 +513,7 @@ void ProcessorParseDelimiterNativeUnittest::TestAddLog() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
     config["Keys"].append("method");
@@ -538,7 +538,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -677,10 +677,10 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
     APSARA_TEST_EQUAL_FATAL(count, processor.GetContext().GetProcessProfile().parseFailures);
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcInRecordsTotal->GetValue());
     std::string expectValue = "value1";
-    APSARA_TEST_EQUAL_FATAL((expectValue.length())*count, processor.mProcParseInSizeBytes->GetValue());
+    APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcOutRecordsTotal->GetValue());
     expectValue = "__raw_log__value1";
-    APSARA_TEST_EQUAL_FATAL((expectValue.length())*count, processor.mProcParseOutSizeBytes->GetValue());
+    APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseOutSizeBytes->GetValue());
 
     APSARA_TEST_EQUAL_FATAL(0, processor.mProcDiscardRecordsTotal->GetValue());
 
@@ -691,7 +691,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventDiscardUnmatch() {
     // make config
     Json::Value config;
     config["SourceKey"] = "content";
-    config["Separator"] =  ",";
+    config["Separator"] = ",";
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
@@ -770,7 +770,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventDiscardUnmatch() {
     APSARA_TEST_EQUAL_FATAL(count, processor.GetContext().GetProcessProfile().parseFailures);
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcInRecordsTotal->GetValue());
     std::string expectValue = "value1";
-    APSARA_TEST_EQUAL_FATAL((expectValue.length())*count, processor.mProcParseInSizeBytes->GetValue());
+    APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     // discard unmatch, so output is 0
     APSARA_TEST_EQUAL_FATAL(0, processorInstance.mProcOutRecordsTotal->GetValue());
     APSARA_TEST_EQUAL_FATAL(0, processor.mProcParseOutSizeBytes->GetValue());
