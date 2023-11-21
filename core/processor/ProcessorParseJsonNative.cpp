@@ -31,7 +31,6 @@ bool ProcessorParseJsonNative::Init(const Json::Value& config) {
     std::string errorMsg;
     if (!GetMandatoryStringParam(config, "SourceKey", mSourceKey, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
-        return false;
     }
     mCommonParserOptions.Init(config, *mContext, sName);
     if (mCommonParserOptions.mRenamedSourceKey.empty()) {

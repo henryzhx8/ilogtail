@@ -34,7 +34,7 @@ public:
     // Required: Separator
     std::string mSeparator;
     // Quotation mark
-    char mQuote = '\"';
+    char mQuote = '"';
     // Required: List of extracted fields.
     std::vector<std::string> mKeys;
     // Whether the number of fields allowed to be extracted is less than the number of Keys. If not allowed, this
