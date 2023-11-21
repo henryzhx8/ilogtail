@@ -43,7 +43,14 @@ bool ProcessorParseRegexNative::Init(const Json::Value& config) {
         mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
 
-    AddUserDefinedFormat();
+    for (auto& it : mKeys) {
+        if (it == mSourceKey) {
+            mSourceKeyOverwritten = true;
+            break;
+        }
+    }
+    mReg = boost::regex(mRegex);
+    mIsWholeLineMode = mRegex == "(.*)";
 
     mParseFailures = &(GetContext().GetProcessProfile().parseFailures);
     mRegexMatchFailures = &(GetContext().GetProcessProfile().regexMatchFailures);
@@ -58,7 +65,7 @@ bool ProcessorParseRegexNative::Init(const Json::Value& config) {
 }
 
 void ProcessorParseRegexNative::Process(PipelineEventGroup& logGroup) {
-    if (logGroup.GetEvents().empty() || mUserDefinedFormat.empty()) {
+    if (logGroup.GetEvents().empty()) {
         return;
     }
     const StringView& logPath = logGroup.GetMetadata(EventGroupMetaKey::LOG_FILE_PATH_RESOLVED);
@@ -88,18 +95,14 @@ bool ProcessorParseRegexNative::ProcessEvent(const StringView& logPath, Pipeline
     }
     auto rawContent = sourceEvent.GetContent(mSourceKey);
     bool parseSuccess = true;
-    for (uint32_t i = 0; i < mUserDefinedFormat.size(); ++i) { // support multiple patterns
-        const UserDefinedFormat& format = mUserDefinedFormat[i];
-        if (format.mIsWholeLineMode) {
-            parseSuccess
-                = WholeLineModeParser(sourceEvent, format.mKeys.empty() ? DEFAULT_CONTENT_KEY : format.mKeys[0]);
-        } else {
-            parseSuccess = RegexLogLineParser(sourceEvent, format.mReg, format.mKeys, logPath);
-        }
-        if (parseSuccess) {
-            break;
-        }
+
+    // const UserDefinedFormat& format = mUserDefinedFormat[i];
+    if (mIsWholeLineMode) {
+        parseSuccess = WholeLineModeParser(sourceEvent, mKeys.empty() ? DEFAULT_CONTENT_KEY : mKeys[0]);
+    } else {
+        parseSuccess = RegexLogLineParser(sourceEvent, mReg, mKeys, logPath);
     }
+
     if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
         AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
                rawContent,
@@ -117,17 +120,6 @@ bool ProcessorParseRegexNative::ProcessEvent(const StringView& logPath, Pipeline
     }
     mProcDiscardRecordsTotal->Add(1);
     return false;
-}
-
-void ProcessorParseRegexNative::AddUserDefinedFormat() {
-    for (auto& it : mKeys) {
-        if (it == mSourceKey) {
-            mSourceKeyOverwritten = true;
-        }
-    }
-    boost::regex reg(mRegex);
-    bool isWholeLineMode = mRegex == "(.*)";
-    mUserDefinedFormat.push_back(UserDefinedFormat(reg, mKeys, isWholeLineMode));
 }
 
 bool ProcessorParseRegexNative::WholeLineModeParser(LogEvent& sourceEvent, const std::string& key) {

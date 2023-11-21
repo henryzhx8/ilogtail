@@ -37,4 +37,5 @@ bool CommonParserOptions::Init(const Json::Value& config, const PipelineContext&
     }
     return true;
 }
+
 } // namespace logtail

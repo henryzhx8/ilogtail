@@ -77,7 +77,7 @@ struct Config {
         return !(mHasGoInput && !mHasNativeProcessor);
         // return !(mHasGoInput && !mHasNativeProcessor && (mHasGoProcessor || (mHasGoFlusher && !mHasNativeFlusher)));
     }
-
+    
     bool HasGoPlugin() const { return mHasGoFlusher || mHasGoProcessor || mHasGoInput; }
 
     void ReplaceEnvVar();

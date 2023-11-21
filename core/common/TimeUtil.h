@@ -97,4 +97,5 @@ void ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
                                   const PipelineContext& ctx,
                                   const std::string& pluginName,
                                   bool isAdjustmentNeeded);
+
 } // namespace logtail

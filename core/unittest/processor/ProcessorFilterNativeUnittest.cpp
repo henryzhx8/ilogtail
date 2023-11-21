@@ -13,7 +13,6 @@
 // limitations under the License.
 #include "common/ExceptionBase.h"
 #include "common/JsonUtil.h"
-#include "config/UserLogConfigParser.h"
 #include "plugin/instance/ProcessorInstance.h"
 #include "processor/ProcessorFilterNative.h"
 #include "unittest/Unittest.h"

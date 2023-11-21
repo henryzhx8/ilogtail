@@ -36,4 +36,5 @@ private:
     friend class ProcessorTagNativeUnittest;
 #endif
 };
+
 } // namespace logtail

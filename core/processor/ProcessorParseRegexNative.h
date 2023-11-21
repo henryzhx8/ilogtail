@@ -22,14 +22,6 @@
 #include "plugin/interface/Processor.h"
 
 namespace logtail {
-struct UserDefinedFormat {
-    boost::regex mReg;
-    std::vector<std::string> mKeys;
-    bool mIsWholeLineMode;
-    UserDefinedFormat(const boost::regex& reg, const std::vector<std::string>& keys, bool isWholeLineMode)
-        : mReg(reg), mKeys(keys), mIsWholeLineMode(isWholeLineMode) {}
-};
-
 class ProcessorParseRegexNative : public Processor {
 public:
     static const std::string sName;
@@ -50,7 +42,6 @@ protected:
     bool IsSupportedEvent(const PipelineEventPtr& e) const override;
 
 private:
-    void AddUserDefinedFormat();
     /// @return false if data need to be discarded
     bool ProcessEvent(const StringView& logPath, PipelineEventPtr& e);
     bool WholeLineModeParser(LogEvent& sourceEvent, const std::string& key);
@@ -61,7 +52,8 @@ private:
     void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent, bool overwritten = true);
 
     bool mSourceKeyOverwritten = false;
-    std::vector<UserDefinedFormat> mUserDefinedFormat;
+    bool mIsWholeLineMode = false;
+    boost::regex mReg;
 
     int* mParseFailures = nullptr;
     int* mRegexMatchFailures = nullptr;
