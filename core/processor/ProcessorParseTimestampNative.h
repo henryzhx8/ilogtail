@@ -52,6 +52,7 @@ private:
     bool IsPrefixString(const StringView& all, const StringView& prefix);
 
     int mLogTimeZoneOffsetSecond = 0;
+    PreciseTimestampConfig mLegacyPreciseTimestampConfig;
 
     int* mParseTimeFailures = nullptr;
     int* mHistoryFailures = nullptr;

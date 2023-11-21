@@ -115,7 +115,7 @@ bool ProcessorParseRegexNative::ProcessEvent(const StringView& logPath, Pipeline
     if (mCommonParserOptions.ShouldDelContent(parseSuccess, mSourceKey, mSourceKeyOverwritten)) {
         sourceEvent.DelContent(mSourceKey);
     }
-    if (parseSuccess || !mCommonParserOptions.mKeepingSourceWhenParseFail) {
+    if (parseSuccess || mCommonParserOptions.mKeepingSourceWhenParseFail) {
         return true;
     }
     mProcDiscardRecordsTotal->Add(1);

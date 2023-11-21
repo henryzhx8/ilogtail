@@ -22,9 +22,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "json/json.h"
-
 #include "common/StringTools.h"
+#include "json/json.h"
 #include "logger/Logger.h"
 
 #define PARAM_ERROR_RETURN(logger, msg, module, config) \
@@ -197,5 +196,7 @@ bool GetMandatoryListParam(const Json::Value& config,
 }
 
 bool IsRegexValid(const std::string& regStr);
+
+bool IsExist(const Json::Value& config, const std::string& key);
 
 } // namespace logtail

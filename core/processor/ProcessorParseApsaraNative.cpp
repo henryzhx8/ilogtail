@@ -119,19 +119,14 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
                                           GetContext().GetRegion());
         mProcParseErrorTotal->Add(1);
         ++(*mParseFailures);
-        if (mCommonParserOptions.ShouldAddUnmatchLog(false)) {
+        if (mCommonParserOptions.mKeepingSourceWhenParseFail || mCommonParserOptions.mCopingRawLog) {
             AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
                    buffer,
                    sourceEvent,
                    false); // legacy behavior, should use sourceKey
-        }
-        if (mCommonParserOptions.ShouldAddRenamedSourceLog(false, mSourceKey)) {
-            AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
-        }
-        if (mCommonParserOptions.ShouldDelContent(false, mSourceKey, mSourceKeyOverwritten)) {
-            sourceEvent.DelContent(mSourceKey);
-        }
-        if (false || !mCommonParserOptions.mKeepingSourceWhenParseFail) {
+            if (mCommonParserOptions.mKeepingSourceWhenParseSucceed) {
+                AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
+            }
             return true;
         }
         mProcDiscardRecordsTotal->Add(1);
@@ -168,6 +163,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     int32_t colon_index = -1;
     int32_t index = -1;
     index = ParseApsaraBaseFields(buffer, sourceEvent);
+    mSourceKeyOverwritten = false;
     if (buffer.data()[index] != 0) {
         do {
             ++index;

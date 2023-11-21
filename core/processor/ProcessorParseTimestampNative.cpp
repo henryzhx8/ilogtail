@@ -40,6 +40,32 @@ bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     if (!GetOptionalIntParam(config, "SourceYear", mSourceYear, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSourceYear, sName, mContext->GetConfigName());
     }
+    mLegacyPreciseTimestampConfig.enabled = false;
+    if (IsExist(config, "PreciseTimestampKey")) {
+        mLegacyPreciseTimestampConfig.enabled = true;
+
+        std::string preciseTimestampKey = PRECISE_TIMESTAMP_DEFAULT_KEY;
+        if (!GetOptionalStringParam(config, "PreciseTimestampKey", preciseTimestampKey, errorMsg)) {
+            PARAM_WARNING_DEFAULT(
+                mContext->GetLogger(), errorMsg, preciseTimestampKey, sName, mContext->GetConfigName());
+        }
+        mLegacyPreciseTimestampConfig.key = preciseTimestampKey;
+
+        std::string preciseTimestampUnit = "";
+        if (!GetOptionalStringParam(config, "PreciseTimestampUnit", preciseTimestampUnit, errorMsg)) {
+            PARAM_WARNING_DEFAULT(
+                mContext->GetLogger(), errorMsg, preciseTimestampUnit, sName, mContext->GetConfigName());
+        }
+        if (0 == preciseTimestampUnit.compare("ms")) {
+            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MILLISECOND;
+        } else if (0 == preciseTimestampUnit.compare("us")) {
+            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MICROSECOND;
+        } else if (0 == preciseTimestampUnit.compare("ns")) {
+            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::NANOSECOND;
+        } else {
+            mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MILLISECOND;
+        }
+    }
 
     if (mSourceTimezone != "") {
         ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mSourceTimezone, *mContext, sName, true);
@@ -122,6 +148,11 @@ bool ProcessorParseTimestampNative::ProcessEvent(StringView logPath,
         return false;
     }
     sourceEvent.SetTimestamp(logTime.tv_sec, logTime.tv_nsec);
+    if (mLegacyPreciseTimestampConfig.enabled) {
+        StringBuffer sb = sourceEvent.GetSourceBuffer()->AllocateStringBuffer(20);
+        sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%lu", preciseTimestamp));
+        sourceEvent.SetContentNoCopy(mLegacyPreciseTimestampConfig.key, StringView(sb.data, sb.size));
+    }
     mProcParseOutSizeBytes->Add(sizeof(logTime.tv_sec) + sizeof(logTime.tv_nsec));
     return true;
 }
@@ -172,6 +203,14 @@ bool ProcessorParseTimestampNative::ParseLogTime(const StringView& curTimeStr, /
         mProcParseErrorTotal->Add(1);
         ++(*mParseTimeFailures);
         return false;
+    }
+
+    if (mLegacyPreciseTimestampConfig.enabled) {
+        if (nanosecondLength < 0) {
+            preciseTimestamp = GetPreciseTimestamp(logTime.tv_sec, strptimeResult, mLegacyPreciseTimestampConfig);
+        } else {
+            preciseTimestamp = GetPreciseTimestampFromLogtailTime(logTime, mLegacyPreciseTimestampConfig);
+        }
     }
     return true;
 }
