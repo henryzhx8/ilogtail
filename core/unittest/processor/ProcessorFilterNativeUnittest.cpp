@@ -20,8 +20,6 @@
 
 using boost::regex;
 
-DECLARE_FLAG_STRING(user_log_config);
-
 namespace logtail {
 
 class ProcessorFilterNativeUnittest : public ::testing::Test {

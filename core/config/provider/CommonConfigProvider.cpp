@@ -8,7 +8,7 @@
 
 #include "app_config/AppConfig.h"
 #include "application/Application.h"
-#include "common/Flags.h"
+#include "common/LogtailCommonFlags.h"
 #include "common/StringTools.h"
 #include "common/version.h"
 #include "logger/Logger.h"
@@ -19,18 +19,9 @@
 
 using namespace std;
 
-DECLARE_FLAG_INT32(sls_client_send_timeout);
-
 DEFINE_FLAG_INT32(config_update_interval, "second", 10);
 
 namespace logtail {
-CommonConfigProvider::~CommonConfigProvider() {
-    try {
-        if (mCheckUpdateThreadPtr.get() != NULL)
-            mCheckUpdateThreadPtr->GetValue(100);
-    } catch (...) {
-    }
-}
 
 CommonConfigProvider* CommonConfigProvider::GetInstance() {
     static CommonConfigProvider instance;
@@ -78,19 +69,19 @@ void CommonConfigProvider::Init(const string& dir) {
         LOG_INFO(sLogger, ("ilogtail_configserver_tags", confJson["ilogtail_tags"].toStyledString()));
     }
 
-    mCheckUpdateThreadPtr = CreateThread([this]() { CheckUpdateThread(); });
+    mCheckUpdateThread = thread([this] { CheckUpdateThread(); });
 }
 
 void CommonConfigProvider::CheckUpdateThread() {
     usleep((rand() % 10) * 100 * 1000);
     int32_t lastCheckTime = 0;
-    while (mThreadIsRunning) {
+    while (mThreadIsRunning.load()) {
         int32_t curTime = time(NULL);
         if (curTime - lastCheckTime >= INT32_FLAG(config_update_interval)) {
             GetConfigUpdate();
             lastCheckTime = curTime;
         }
-        if (mThreadIsRunning)
+        if (mThreadIsRunning.load())
             sleep(1);
         else
             break;

@@ -16,24 +16,25 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
+#include <memory>
+#include <unordered_map>
 
-#include "config/NewConfig.h"
 #include "json/json.h"
+
+#include "config/Config.h"
 #include "models/PipelineEventGroup.h"
 #include "pipeline/PipelineContext.h"
-#include "plugin/instance/FlusherInstance.h"
 #include "plugin/instance/InputInstance.h"
+#include "plugin/instance/FlusherInstance.h"
 #include "plugin/instance/ProcessorInstance.h"
 
 namespace logtail {
 
 class Pipeline {
 public:
-    bool Init(NewConfig&& config);
+    bool Init(Config&& config);
     void Start();
     void Process(PipelineEventGroup&& logGroup, std::vector<PipelineEventGroup>& logGroupList);
     void Stop(bool isRemoving);
@@ -66,7 +67,7 @@ private:
     mutable PipelineContext mContext;
     std::unordered_map<std::string, std::unordered_map<std::string, uint32_t>> mPluginCntMap;
     Json::Value mConfig;
-
+    
 #ifdef APSARA_UNIT_TEST_MAIN
     friend class PipelineMock;
     friend class PipelineUnittest;
