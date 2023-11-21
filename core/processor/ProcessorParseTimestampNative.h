@@ -65,4 +65,5 @@ private:
     friend class ProcessorParseLogTimeUnittest;
 #endif
 };
+
 } // namespace logtail

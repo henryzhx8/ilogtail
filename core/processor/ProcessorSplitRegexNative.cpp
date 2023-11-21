@@ -219,8 +219,7 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                         HandleUnmatchLogs(buffer, multiBeginIndex, endIndex, logIndex, discardIndex);
                         break;
                     }
-                    // mMultiline.GetContinuePatternReg() can be matched 0 or multiple times, if not match continue to
-                    // try mMultiline.GetEndPatternReg()
+                    // ContinuePatternReg can be matched 0 or multiple times, if not match continue to try EndPatternReg
                     if (mMultiline.GetContinuePatternReg() != nullptr
                         && BoostRegexMatch(
                             buffer + begIndex, endIndex - begIndex, *mMultiline.GetContinuePatternReg(), exception)) {
@@ -240,7 +239,7 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                     break;
 
                 case SPLIT_BEGIN:
-                    // mMultiline.GetContinuePatternReg() can be matched 0 or multiple times, if not match continue to
+                    // ContinuePatternReg can be matched 0 or multiple times, if not match continue to
                     // try others.
                     if (mMultiline.GetContinuePatternReg() != nullptr
                         && BoostRegexMatch(
@@ -278,8 +277,7 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                     break;
 
                 case SPLIT_CONTINUE:
-                    // mMultiline.GetContinuePatternReg() can be matched 0 or multiple times, if not match continue to
-                    // try others.
+                    // ContinuePatternReg can be matched 0 or multiple times, if not match continue to try others.
                     if (mMultiline.GetContinuePatternReg() != nullptr
                         && BoostRegexMatch(
                             buffer + begIndex, endIndex - begIndex, *mMultiline.GetContinuePatternReg(), exception)) {
@@ -380,7 +378,7 @@ void ProcessorSplitRegexNative::HandleUnmatchLogs(const char* buffer,
                                                   int endIndex,
                                                   std::vector<StringView>& logIndex,
                                                   std::vector<StringView>& discardIndex) {
-    // Cannot determine where log is unmatched here where there is only mMultiline.GetEndPatternReg()
+    // Cannot determine where log is unmatched here where there is only EndPatternReg
     if (mMultiline.GetStartPatternReg() == nullptr && mMultiline.GetContinuePatternReg() == nullptr
         && mMultiline.GetEndPatternReg() != nullptr) {
         return;

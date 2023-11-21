@@ -31,7 +31,7 @@ public:
     const std::string UNMATCH_LOG_KEY = "__raw_log__";
 
     bool ShouldAddUnmatchLog(const bool& parseSuccess) {
-        return !parseSuccess && mKeepingSourceWhenParseFail && mCopingRawLog;
+        return !parseSuccess && (mKeepingSourceWhenParseFail || mCopingRawLog);
     }
 
     bool ShouldDelContent(const bool& parseSuccess, const std::string& sourceKey, const bool& sourceKeyOverwritten) {

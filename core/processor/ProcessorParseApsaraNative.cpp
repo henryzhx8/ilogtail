@@ -52,10 +52,6 @@ bool ProcessorParseApsaraNative::Init(const Json::Value& config) {
         ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mTimezone, *mContext, sName, false);
     }
 
-    if (mCommonParserOptions.mKeepingSourceWhenParseSucceed && mCommonParserOptions.mRenamedSourceKey == mSourceKey) {
-        mSourceKeyOverwritten = true;
-    }
-
     mLogGroupSize = &(GetContext().GetProcessProfile().logGroupSize);
     mParseFailures = &(GetContext().GetProcessProfile().parseFailures);
     mHistoryFailures = &(GetContext().GetProcessProfile().historyFailures);
@@ -126,10 +122,16 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
         if (mCommonParserOptions.ShouldAddUnmatchLog(false)) {
             AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
                    buffer,
-                   sourceEvent); // legacy behavior, should use sourceKey
-            if (mCommonParserOptions.mKeepingSourceWhenParseSucceed) {
-                AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent); // __raw__
-            }
+                   sourceEvent,
+                   false); // legacy behavior, should use sourceKey
+        }
+        if (mCommonParserOptions.ShouldAddRenamedSourceLog(false, mSourceKey)) {
+            AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
+        }
+        if (mCommonParserOptions.ShouldDelContent(false, mSourceKey, mSourceKeyOverwritten)) {
+            sourceEvent.DelContent(mSourceKey);
+        }
+        if (false || !mCommonParserOptions.mKeepingSourceWhenParseFail) {
             return true;
         }
         mProcDiscardRecordsTotal->Add(1);
@@ -166,8 +168,6 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     int32_t colon_index = -1;
     int32_t index = -1;
     index = ParseApsaraBaseFields(buffer, sourceEvent);
-    bool sourceKeyOverwritten = mSourceKeyOverwritten;
-    bool rawLogTagOverwritten = false;
     if (buffer.data()[index] != 0) {
         do {
             ++index;
@@ -176,10 +176,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
                     StringView key(buffer.data() + beg_index, colon_index - beg_index);
                     AddLog(key, StringView(buffer.data() + colon_index + 1, index - colon_index - 1), sourceEvent);
                     if (key == mSourceKey) {
-                        sourceKeyOverwritten = true;
-                    }
-                    if (key == mCommonParserOptions.mRenamedSourceKey) {
-                        rawLogTagOverwritten = true;
+                        mSourceKeyOverwritten = true;
                     }
                     colon_index = -1;
                 }
@@ -200,10 +197,10 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%lld", logTime_in_micro));
 #endif
     AddLog("microtime", StringView(sb.data, sb.size), sourceEvent);
-    if (mCommonParserOptions.mKeepingSourceWhenParseSucceed && !rawLogTagOverwritten) {
-        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent); // __raw__
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(true, mSourceKey)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
     }
-    if (!sourceKeyOverwritten) {
+    if (mCommonParserOptions.ShouldDelContent(true, mSourceKey, mSourceKeyOverwritten)) {
         sourceEvent.DelContent(mSourceKey);
     }
     return true;
@@ -350,7 +347,13 @@ int32_t ProcessorParseApsaraNative::ParseApsaraBaseFields(StringView& buffer, Lo
     return endIndexArray[baseFieldNum - 1]; // return ']' position
 }
 
-void ProcessorParseApsaraNative::AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent) {
+void ProcessorParseApsaraNative::AddLog(const StringView& key,
+                                        const StringView& value,
+                                        LogEvent& targetEvent,
+                                        bool overwritten) {
+    if (!overwritten && targetEvent.HasContent(key)) {
+        return;
+    }
     targetEvent.SetContentNoCopy(key, value);
     *mLogGroupSize += key.size() + value.size() + 5;
     mProcParseOutSizeBytes->Add(key.size() + value.size());

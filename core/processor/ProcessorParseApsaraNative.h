@@ -49,7 +49,7 @@ protected:
 private:
     bool
     ProcessEvent(const StringView& logPath, PipelineEventPtr& e, LogtailTime& lastLogTime, StringView& timeStrCache);
-    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent);
+    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent, bool overwritten = true);
     time_t
     ApsaraEasyReadLogTimeParser(StringView& buffer, StringView& timeStr, LogtailTime& lastLogTime, int64_t& microTime);
     bool IsPrefixString(const char* all, const StringView& prefix);
