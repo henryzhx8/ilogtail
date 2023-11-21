@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "parser/DelimiterModeFsmParser.h"
 #include "plugin/interface/Processor.h"
@@ -25,33 +26,28 @@ namespace logtail {
 class ProcessorParseDelimiterNative : public Processor {
 public:
     static const std::string sName;
-    static const std::string UNMATCH_LOG_KEY;
 
     enum class OverflowedFieldsTreatment { EXTEND, KEEP, DISCARD };
 
-    // 必填 源字段名。
+    // Required: source field name.
     std::string mSourceKey;
-    // 必填 分隔符
+    // Required: Separator
     std::string mSeparator;
-    // 引用符
+    // Quotation mark
     char mQuote = '\"';
-    // 必填 提取的字段列表。
+    // Required: List of extracted fields.
     std::vector<std::string> mKeys;
-    // 是否允许提取的字段数量小于Keys的数量。若不允许，则此情景会被视为解析失败。
+    // Whether the number of fields allowed to be extracted is less than the number of Keys. If not allowed, this
+    // scenario will be considered as parsing failure.
     bool mAllowingShortenedFields = true;
-    // 当提取的字段数量大于Keys的数量时的行为。可选值包括：
-    // ●
-    // extend：保留多余的字段，且每个多余的字段都作为单独的一个字段加入日志，多余字段的字段名为__column$i__，其中$i代表额外字段序号，从0开始计数。
-    // ● keep：保留多余的字段，但将多余内容作为一个整体字段加入日志，字段名为__column0__.
-    // ● discard：丢弃多余的字段。
+    // Behavior when the number of extracted fields is greater than the number of Keys. Optional values include:
+    // ● extend: Retain excess fields, and each excess field is added to the log as a separate field, with the field
+    // name being __column$i__, where $i represents the sequence number of additional fields, starting from 0.
+    // ● keep: Retain excess fields, but add surplus content as a whole field to the log, with the field name being
+    // __column0__.
+    // ● discard: Discard excess fields.
     OverflowedFieldsTreatment mOverflowedFieldsTreatment = OverflowedFieldsTreatment::EXTEND;
-    // 当解析失败时，是否保留源字段。
-    bool mKeepingSourceWhenParseFail = false;
-    // 当解析成功时，是否保留源字段。
-    bool mKeepingSourceWhenParseSucceed = false;
-    // 当源字段被保留时，用于存储源字段的字段名。若不填，默认不改名。
-    std::string mRenamedSourceKey = "__raw__";
-
+    CommonParserOptions mCommonParserOptions;
 
     const std::string& Name() const override { return sName; }
     bool Init(const Json::Value& config) override;
@@ -67,14 +63,12 @@ private:
                      int32_t endIdx,
                      std::vector<size_t>& colBegIdxs,
                      std::vector<size_t>& colLens);
-    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent);
+    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent, bool overwritten = true);
     bool mExtractPartialFields = false;
     bool mAutoExtend = false;
 
-    bool mCopingRawLog = false;
     char mSeparatorChar;
     bool mSourceKeyOverwritten = false;
-    bool mRawLogTagOverwritten = false;
     DelimiterModeFsmParser* mDelimiterModeFsmParserPtr;
     static const std::string s_mDiscardedFieldKey;
 

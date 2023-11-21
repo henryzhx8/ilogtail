@@ -23,7 +23,6 @@
 
 namespace logtail {
 const std::string ProcessorParseRegexNative::sName = "processor_parse_regex_native";
-const std::string ProcessorParseRegexNative::UNMATCH_LOG_KEY = "__raw_log__";
 
 bool ProcessorParseRegexNative::Init(const Json::Value& config) {
     std::string errorMsg;
@@ -32,34 +31,19 @@ bool ProcessorParseRegexNative::Init(const Json::Value& config) {
     }
     if (!GetMandatoryStringParam(config, "Regex", mRegex, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
-    } else if (!CheckRegFormat(mRegex)) {
-        errorMsg = std::string("The regex is invalid") + mRegex;
-        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+    } else if (!IsRegexValid(mRegex)) {
+        PARAM_ERROR_RETURN(mContext->GetLogger(), "param Regex is not valid regex", sName, mContext->GetConfigName());
     }
     if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
 
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseFail, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseSucceed", mKeepingSourceWhenParseSucceed, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseSucceed, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalStringParam(config, "RenamedSourceKey", mRenamedSourceKey, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mRenamedSourceKey, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "CopingRawLog", mCopingRawLog, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mCopingRawLog, sName, mContext->GetConfigName());
+    mCommonParserOptions.Init(config, *mContext, sName);
+    if (mCommonParserOptions.mRenamedSourceKey.empty()) {
+        mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
 
     AddUserDefinedFormat();
-
-    if (mKeepingSourceWhenParseSucceed && mRenamedSourceKey == mSourceKey) {
-        mSourceKeyOverwritten = true;
-    }
 
     mParseFailures = &(GetContext().GetProcessProfile().parseFailures);
     mRegexMatchFailures = &(GetContext().GetProcessProfile().regexMatchFailures);
@@ -116,18 +100,19 @@ bool ProcessorParseRegexNative::ProcessEvent(const StringView& logPath, Pipeline
             break;
         }
     }
-    if (!parseSuccess && (mKeepingSourceWhenParseFail || mCopingRawLog)) {
-        AddLog(UNMATCH_LOG_KEY, // __raw_log__
+    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
                rawContent,
-               sourceEvent); // legacy behavior, should use sourceKey
+               sourceEvent,
+               false); // legacy behavior, should use sourceKey
     }
-    if (parseSuccess || mKeepingSourceWhenParseFail) {
-        if (mKeepingSourceWhenParseSucceed && (!parseSuccess || !mRawLogTagOverwritten)) {
-            AddLog(mRenamedSourceKey, rawContent, sourceEvent); // __raw__
-        }
-        if (parseSuccess && !mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
-        }
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false); // __raw__
+    }
+    if (mCommonParserOptions.ShouldDelContent(parseSuccess, mSourceKey, mSourceKeyOverwritten)) {
+        sourceEvent.DelContent(mSourceKey);
+    }
+    if (parseSuccess || !mCommonParserOptions.mKeepingSourceWhenParseFail) {
         return true;
     }
     mProcDiscardRecordsTotal->Add(1);
@@ -138,9 +123,6 @@ void ProcessorParseRegexNative::AddUserDefinedFormat() {
     for (auto& it : mKeys) {
         if (it == mSourceKey) {
             mSourceKeyOverwritten = true;
-        }
-        if (it == mRenamedSourceKey) {
-            mRawLogTagOverwritten = true;
         }
     }
     boost::regex reg(mRegex);
@@ -155,11 +137,16 @@ bool ProcessorParseRegexNative::WholeLineModeParser(LogEvent& sourceEvent, const
     return true;
 }
 
-void ProcessorParseRegexNative::AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent) {
+void ProcessorParseRegexNative::AddLog(const StringView& key,
+                                       const StringView& value,
+                                       LogEvent& targetEvent,
+                                       bool overwritten) {
+    if (!overwritten && targetEvent.HasContent(key)) {
+        return;
+    }
     targetEvent.SetContentNoCopy(key, value);
-    size_t keyValueSize = key.size() + value.size();
-    *mLogGroupSize += keyValueSize + 5;
-    mProcParseOutSizeBytes->Add(keyValueSize);
+    *mLogGroupSize += key.size() + value.size() + 5;
+    mProcParseOutSizeBytes->Add(key.size() + value.size());
 }
 
 bool ProcessorParseRegexNative::RegexLogLineParser(LogEvent& sourceEvent,
@@ -234,12 +221,4 @@ bool ProcessorParseRegexNative::RegexLogLineParser(LogEvent& sourceEvent,
     return true;
 }
 
-bool ProcessorParseRegexNative::CheckRegFormat(const std::string& regStr) {
-    try {
-        boost::regex reg(regStr);
-    } catch (...) {
-        return false;
-    }
-    return true;
-}
 } // namespace logtail

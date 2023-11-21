@@ -37,16 +37,16 @@ bool ProcessorDesensitizeNative::Init(const Json::Value& config) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
     if (method == "const") {
-        mMethod = CONST_OPTION;
+        mMethod = DesensitizeMethod::CONST_OPTION;
     } else if (method == "md5") {
-        mMethod = MD5_OPTION;
+        mMethod = DesensitizeMethod::MD5_OPTION;
     } else {
         errorMsg = "The method(" + method + ") is invalid";
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
 
-    // 当Method取值为const时必选
-    if (mMethod == CONST_OPTION) {
+    // Required when the Method value is const
+    if (mMethod == DesensitizeMethod::CONST_OPTION) {
         if (!GetMandatoryStringParam(config, "ReplacingString", mReplacingString, errorMsg)) {
             PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
         }
@@ -67,7 +67,6 @@ bool ProcessorDesensitizeNative::Init(const Json::Value& config) {
     if (!mRegex->ok()) {
         errorMsg = mRegex->error();
         errorMsg += std::string(", regex : ") + regexStr;
-        // do not throw when parse sensitive key error
         mContext->GetAlarm().SendAlarm(CATEGORY_CONFIG_ALARM,
                                        std::string("The sensitive key regex is invalid, ") + errorMsg,
                                        GetContext().GetProjectName(),
@@ -109,13 +108,13 @@ void ProcessorDesensitizeNative::ProcessEvent(PipelineEventPtr& e) {
 
     const LogContents& contents = sourceEvent.GetContents();
 
-    // 遍历所有字段，对敏感字段进行脱敏处理
+    // Traverse all fields and desensitize sensitive fields.
     for (auto it = contents.begin(); it != contents.end(); ++it) {
-        // 只对指定的字段进行脱敏处理
+        // Only perform desensitization processing on specified fields.
         if (it->first != mSourceKey) {
             continue;
         }
-        // 只对非空字段进行脱敏处理
+        // Only perform desensitization processing on non-empty fields.
         if (it->second.empty()) {
             continue;
         }
@@ -131,7 +130,7 @@ void ProcessorDesensitizeNative::CastOneSensitiveWord(std::string* value) {
     std::string* pVal = value;
     bool rst = false;
 
-    if (mMethod == CONST_OPTION) {
+    if (mMethod == DesensitizeMethod::CONST_OPTION) {
         if (mReplacingAll) {
             rst = RE2::GlobalReplace(pVal, *mRegex, mReplacingString);
         } else {

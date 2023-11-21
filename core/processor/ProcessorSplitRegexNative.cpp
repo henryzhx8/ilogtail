@@ -39,10 +39,11 @@ bool ProcessorSplitRegexNative::Init(const Json::Value& config) {
 
     mMultiline.Init(config, *mContext, sName);
 
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseFail, sName, mContext->GetConfigName());
+    mCommonParserOptions.Init(config, *mContext, sName);
+    if (mCommonParserOptions.mRenamedSourceKey.empty()) {
+        mCommonParserOptions.mRenamedSourceKey = mSplitKey;
     }
+
     if (!GetOptionalBoolParam(config, "AppendingLogPositionMeta", mAppendingLogPositionMeta, errorMsg)) {
         PARAM_WARNING_DEFAULT(
             mContext->GetLogger(), errorMsg, mAppendingLogPositionMeta, sName, mContext->GetConfigName());
@@ -201,9 +202,9 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                         logIndex.emplace_back(buffer + begIndex, endIndex - begIndex);
                         multiBeginIndex = endIndex + 1;
                         break;
-                    } else if (mMultiline.mStartPatternRegPtr != nullptr) {
+                    } else if (mMultiline.GetStartPatternReg() != nullptr) {
                         if (BoostRegexMatch(
-                                buffer + begIndex, endIndex - begIndex, *mMultiline.mStartPatternRegPtr, exception)) {
+                                buffer + begIndex, endIndex - begIndex, *mMultiline.GetStartPatternReg(), exception)) {
                             // Just clear old cache, task current line as the new cache
                             if (multiBeginIndex != begIndex) {
                                 anyMatched = true;
@@ -218,17 +219,17 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                         HandleUnmatchLogs(buffer, multiBeginIndex, endIndex, logIndex, discardIndex);
                         break;
                     }
-                    // mMultiline.mContinuePatternRegPtr can be matched 0 or multiple times, if not match continue to
-                    // try mMultiline.mEndPatternRegPtr
-                    if (mMultiline.mContinuePatternRegPtr != nullptr
+                    // mMultiline.GetContinuePatternReg() can be matched 0 or multiple times, if not match continue to
+                    // try mMultiline.GetEndPatternReg()
+                    if (mMultiline.GetContinuePatternReg() != nullptr
                         && BoostRegexMatch(
-                            buffer + begIndex, endIndex - begIndex, *mMultiline.mContinuePatternRegPtr, exception)) {
+                            buffer + begIndex, endIndex - begIndex, *mMultiline.GetContinuePatternReg(), exception)) {
                         state = SPLIT_CONTINUE;
                         break;
                     }
-                    if (mMultiline.mEndPatternRegPtr != nullptr
+                    if (mMultiline.GetEndPatternReg() != nullptr
                         && BoostRegexMatch(
-                            buffer + begIndex, endIndex - begIndex, *mMultiline.mEndPatternRegPtr, exception)) {
+                            buffer + begIndex, endIndex - begIndex, *mMultiline.GetEndPatternReg(), exception)) {
                         // output logs in cache from multiBeginIndex to endIndex
                         anyMatched = true;
                         logIndex.emplace_back(buffer + multiBeginIndex, endIndex - multiBeginIndex);
@@ -239,17 +240,17 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                     break;
 
                 case SPLIT_BEGIN:
-                    // mMultiline.mContinuePatternRegPtr can be matched 0 or multiple times, if not match continue to
+                    // mMultiline.GetContinuePatternReg() can be matched 0 or multiple times, if not match continue to
                     // try others.
-                    if (mMultiline.mContinuePatternRegPtr != nullptr
+                    if (mMultiline.GetContinuePatternReg() != nullptr
                         && BoostRegexMatch(
-                            buffer + begIndex, endIndex - begIndex, *mMultiline.mContinuePatternRegPtr, exception)) {
+                            buffer + begIndex, endIndex - begIndex, *mMultiline.GetContinuePatternReg(), exception)) {
                         state = SPLIT_CONTINUE;
                         break;
                     }
-                    if (mMultiline.mEndPatternRegPtr != nullptr) {
+                    if (mMultiline.GetEndPatternReg() != nullptr) {
                         if (BoostRegexMatch(
-                                buffer + begIndex, endIndex - begIndex, *mMultiline.mEndPatternRegPtr, exception)) {
+                                buffer + begIndex, endIndex - begIndex, *mMultiline.GetEndPatternReg(), exception)) {
                             anyMatched = true;
                             logIndex.emplace_back(buffer + multiBeginIndex, endIndex - multiBeginIndex);
                             multiBeginIndex = endIndex + 1;
@@ -257,15 +258,15 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                         }
                         // for case: begin unmatch end
                         // so logs cannot be handled as unmatch even if not match LogEngReg
-                    } else if (mMultiline.mStartPatternRegPtr != nullptr) {
+                    } else if (mMultiline.GetStartPatternReg() != nullptr) {
                         anyMatched = true;
                         if (BoostRegexMatch(
-                                buffer + begIndex, endIndex - begIndex, *mMultiline.mStartPatternRegPtr, exception)) {
+                                buffer + begIndex, endIndex - begIndex, *mMultiline.GetStartPatternReg(), exception)) {
                             if (multiBeginIndex != begIndex) {
                                 logIndex.emplace_back(buffer + multiBeginIndex, begIndex - 1 - multiBeginIndex);
                                 multiBeginIndex = begIndex;
                             }
-                        } else if (mMultiline.mContinuePatternRegPtr != nullptr) {
+                        } else if (mMultiline.GetContinuePatternReg() != nullptr) {
                             // case: begin+continue, but we meet unmatch log here
                             logIndex.emplace_back(buffer + multiBeginIndex, begIndex - 1 - multiBeginIndex);
                             multiBeginIndex = begIndex;
@@ -277,16 +278,16 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                     break;
 
                 case SPLIT_CONTINUE:
-                    // mMultiline.mContinuePatternRegPtr can be matched 0 or multiple times, if not match continue to
+                    // mMultiline.GetContinuePatternReg() can be matched 0 or multiple times, if not match continue to
                     // try others.
-                    if (mMultiline.mContinuePatternRegPtr != nullptr
+                    if (mMultiline.GetContinuePatternReg() != nullptr
                         && BoostRegexMatch(
-                            buffer + begIndex, endIndex - begIndex, *mMultiline.mContinuePatternRegPtr, exception)) {
+                            buffer + begIndex, endIndex - begIndex, *mMultiline.GetContinuePatternReg(), exception)) {
                         break;
                     }
-                    if (mMultiline.mEndPatternRegPtr != nullptr) {
+                    if (mMultiline.GetEndPatternReg() != nullptr) {
                         if (BoostRegexMatch(
-                                buffer + begIndex, endIndex - begIndex, *mMultiline.mEndPatternRegPtr, exception)) {
+                                buffer + begIndex, endIndex - begIndex, *mMultiline.GetEndPatternReg(), exception)) {
                             anyMatched = true;
                             logIndex.emplace_back(buffer + multiBeginIndex, endIndex - multiBeginIndex);
                             multiBeginIndex = endIndex + 1;
@@ -295,9 +296,9 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
                             HandleUnmatchLogs(buffer, multiBeginIndex, endIndex, logIndex, discardIndex);
                             state = SPLIT_UNMATCH;
                         }
-                    } else if (mMultiline.mStartPatternRegPtr != nullptr) {
+                    } else if (mMultiline.GetStartPatternReg() != nullptr) {
                         if (BoostRegexMatch(
-                                buffer + begIndex, endIndex - begIndex, *mMultiline.mStartPatternRegPtr, exception)) {
+                                buffer + begIndex, endIndex - begIndex, *mMultiline.GetStartPatternReg(), exception)) {
                             anyMatched = true;
                             logIndex.emplace_back(buffer + multiBeginIndex, begIndex - 1 - multiBeginIndex);
                             multiBeginIndex = begIndex;
@@ -344,14 +345,14 @@ bool ProcessorSplitRegexNative::LogSplit(const char* buffer,
             logIndex.emplace_back(buffer + multiBeginIndex, size - multiBeginIndex);
         } else {
             endIndex = buffer[size - 1] == '\n' ? size - 1 : size;
-            if (mMultiline.mStartPatternRegPtr != NULL && mMultiline.mEndPatternRegPtr == NULL) {
+            if (mMultiline.GetStartPatternReg() != NULL && mMultiline.GetEndPatternReg() == NULL) {
                 anyMatched = true;
                 // If logs is unmatched, they have been handled immediately. So logs must be matched here.
                 logIndex.emplace_back(buffer + multiBeginIndex, endIndex - multiBeginIndex);
-            } else if (mMultiline.mStartPatternRegPtr == NULL && mMultiline.mContinuePatternRegPtr == NULL
-                       && mMultiline.mEndPatternRegPtr != NULL) {
+            } else if (mMultiline.GetStartPatternReg() == NULL && mMultiline.GetContinuePatternReg() == NULL
+                       && mMultiline.GetEndPatternReg() != NULL) {
                 // If there is still logs in cache, it means that there is no end line. We can handle them as unmatched.
-                if (!mKeepingSourceWhenParseFail) {
+                if (!mCommonParserOptions.mKeepingSourceWhenParseFail) {
                     for (int i = multiBeginIndex; i <= endIndex; i++) {
                         if (i == endIndex || buffer[i] == '\n') {
                             discardIndex.emplace_back(buffer + multiBeginIndex, i - multiBeginIndex);
@@ -379,12 +380,12 @@ void ProcessorSplitRegexNative::HandleUnmatchLogs(const char* buffer,
                                                   int endIndex,
                                                   std::vector<StringView>& logIndex,
                                                   std::vector<StringView>& discardIndex) {
-    // Cannot determine where log is unmatched here where there is only mMultiline.mEndPatternRegPtr
-    if (mMultiline.mStartPatternRegPtr == nullptr && mMultiline.mContinuePatternRegPtr == nullptr
-        && mMultiline.mEndPatternRegPtr != nullptr) {
+    // Cannot determine where log is unmatched here where there is only mMultiline.GetEndPatternReg()
+    if (mMultiline.GetStartPatternReg() == nullptr && mMultiline.GetContinuePatternReg() == nullptr
+        && mMultiline.GetEndPatternReg() != nullptr) {
         return;
     }
-    if (!mKeepingSourceWhenParseFail) {
+    if (!mCommonParserOptions.mKeepingSourceWhenParseFail) {
         for (int i = multiBeginIndex; i <= endIndex; i++) {
             if (i == endIndex || buffer[i] == '\n') {
                 discardIndex.emplace_back(buffer + multiBeginIndex, i - multiBeginIndex);

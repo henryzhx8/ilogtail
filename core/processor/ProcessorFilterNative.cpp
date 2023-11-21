@@ -35,6 +35,10 @@ bool ProcessorFilterNative::Init(const Json::Value& config) {
         std::vector<boost::regex> regs;
         for (auto& include : mInclude) {
             keys.emplace_back(include.first);
+            if (!IsRegexValid(include.second)) {
+                errorMsg = "invalid regex format: " + include.second;
+                PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+            }
             regs.emplace_back(boost::regex(include.second));
         }
         mFilterRule = std::make_shared<LogFilterRule>();

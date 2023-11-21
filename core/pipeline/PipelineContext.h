@@ -19,13 +19,12 @@
 #include <cstdint>
 #include <string>
 
-#include "json/json.h"
-
 #include "common/LogstoreFeedbackKey.h"
+#include "json/json.h"
 #include "logger/Logger.h"
 #include "models/PipelineEventGroup.h"
-#include "monitor/LogtailAlarm.h"
 #include "monitor/LogFileProfiler.h"
+#include "monitor/LogtailAlarm.h"
 #include "pipeline/GlobalConfig.h"
 
 namespace logtail {

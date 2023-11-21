@@ -25,9 +25,11 @@
 #include <utmp.h>
 #endif
 #include "common/LogtailCommonFlags.h"
+#include "common/ParamExtractor.h"
 #include "common/StringTools.h"
 #include "common/Strptime.h"
 #include "logger/Logger.h"
+#include "pipeline/PipelineContext.h"
 
 namespace logtail {
 
@@ -385,6 +387,26 @@ bool ParseTimeZoneOffsetSecond(const std::string& logTZ, int& logTZSecond) {
         logTZSecond = -logTZSecond;
     }
     return true;
+}
+
+void ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
+                                  const std::string& logTZ,
+                                  const PipelineContext& ctx,
+                                  const std::string& pluginName,
+                                  bool isAdjustmentNeeded) {
+    int logTZSecond = 0;
+    std::string errorMsg;
+    if (!ParseTimeZoneOffsetSecond(logTZ, logTZSecond)) {
+        errorMsg
+            = "invalid log time zone specified, will parse log time without time zone adjusted, time zone: " + logTZ;
+        PARAM_WARNING_DEFAULT(ctx.GetLogger(), errorMsg, logTimeZoneOffsetSecond, pluginName, ctx.GetConfigName());
+    } else {
+        if (isAdjustmentNeeded) {
+            logTimeZoneOffsetSecond = logTZSecond - GetLocalTimeZoneOffsetSecond();
+        } else {
+            logTimeZoneOffsetSecond = logTZSecond;
+        }
+    }
 }
 
 } // namespace logtail

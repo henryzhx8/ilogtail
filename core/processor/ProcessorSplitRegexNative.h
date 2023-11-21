@@ -17,6 +17,7 @@
 #pragma once
 
 #include "boost/regex.hpp"
+#include "common/CommonParserOptions.h"
 #include "file_server/MultilineOptions.h"
 #include "plugin/interface/Processor.h"
 
@@ -29,7 +30,7 @@ public:
     std::string mSplitKey = DEFAULT_CONTENT_KEY;
     MultilineOptions mMultiline;
     bool mAppendingLogPositionMeta = false;
-    bool mKeepingSourceWhenParseFail = false;
+    CommonParserOptions mCommonParserOptions;
 
     const std::string& Name() const override { return sName; }
     bool Init(const Json::Value& config) override;

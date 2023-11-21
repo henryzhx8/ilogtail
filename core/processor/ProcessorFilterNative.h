@@ -175,11 +175,10 @@ class ProcessorFilterNative : public Processor {
 public:
     static const std::string sName;
 
-    // 日志字段白名单。多个条件之间为“且”的关系，仅当所有条件均满足时，该条日志才会被采集。
+    // Log field whitelist. The relationship between multiple conditions is "and". Only when all conditions are met, the
+    // log will be collected.
     std::unordered_map<std::string, std::string> mInclude;
-    // ConditionExp
     BaseFilterNodePtr mConditionExp = nullptr;
-    // 忽略非UTF8编码的日志
     bool mDiscardingNonUTF8 = false;
 
     const std::string& Name() const override { return sName; }
@@ -200,14 +199,13 @@ private:
 
     bool ProcessEvent(PipelineEventPtr& e);
 
-    // 通过ConditionExp过滤日志
+    // Filter logs through ConditionExp
     bool FilterExpressionRoot(LogEvent& sourceEvent, const BaseFilterNodePtr& node);
 
-    // 通过FilterRule过滤日志
+    // Filter logs through FilterRule
     bool FilterFilterRule(LogEvent& sourceEvent, const LogFilterRule* filterRule);
     bool IsMatched(const LogContents& contents, const LogFilterRule& rule);
 
-    // 丢弃非UTF8编码的日志
     bool noneUtf8(StringView& strSrc, bool modify);
     bool CheckNoneUtf8(const StringView& strSrc);
     void FilterNoneUtf8(std::string& strSrc);

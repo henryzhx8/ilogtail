@@ -15,26 +15,21 @@
  */
 #pragma once
 
+#include <rapidjson/document.h>
+
+#include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
-#include "rapidjson/document.h"
 
 namespace logtail {
 
 class ProcessorParseJsonNative : public Processor {
 public:
     static const std::string sName;
-    static const std::string UNMATCH_LOG_KEY;
 
-    // 源字段名。
+    // Source field name.
     std::string mSourceKey;
-    // 当解析失败时，是否保留源字段。
-    bool mKeepingSourceWhenParseFail = false;
-    // 当解析成功时，是否保留源字段。
-    bool mKeepingSourceWhenParseSucceed = false;
-    // 当原始字段被保留时，用于存储原始字段的字段名。若不填，默认不改名。
-    std::string mRenamedSourceKey = "__raw__";
-    bool mCopingRawLog = false;
+    CommonParserOptions mCommonParserOptions;
 
     const std::string& Name() const override { return sName; }
     bool Init(const Json::Value& config) override;
@@ -45,7 +40,6 @@ protected:
 
 private:
     bool mSourceKeyOverwritten = false;
-    bool mRawLogTagOverwritten = false;
 
     int* mParseFailures = nullptr;
     int* mLogGroupSize = nullptr;
@@ -56,7 +50,7 @@ private:
     CounterPtr mProcParseErrorTotal;
 
     bool JsonLogLineParser(LogEvent& sourceEvent, const StringView& logPath, PipelineEventPtr& e);
-    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent);
+    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent, bool overwritten = true);
     bool ProcessEvent(const StringView& logPath, PipelineEventPtr& e);
     static std::string RapidjsonValueToString(const rapidjson::Value& value);
 

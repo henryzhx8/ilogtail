@@ -17,6 +17,7 @@
 #pragma once
 
 #include "boost/regex.hpp"
+#include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
 
@@ -32,22 +33,14 @@ struct UserDefinedFormat {
 class ProcessorParseRegexNative : public Processor {
 public:
     static const std::string sName;
-    static const std::string UNMATCH_LOG_KEY;
 
-    // 源字段名。
+    // Source field name.
     std::string mSourceKey;
-    // 正则表达式。
+    // Regular expression.
     std::string mRegex;
-    // 提取的字段列表。
+    // Extracted field list.
     std::vector<std::string> mKeys;
-    // 当解析失败时，是否保留源字段。
-    bool mKeepingSourceWhenParseFail = false;
-    // 当解析成功时，是否保留源字段。
-    bool mKeepingSourceWhenParseSucceed = false;
-    // 当源字段被保留时，用于存储源字段的字段名。若不填，默认不改名。
-    std::string mRenamedSourceKey = "__raw__";
-    bool mCopingRawLog = false;
-
+    CommonParserOptions mCommonParserOptions;
 
     const std::string& Name() const override { return sName; }
     bool Init(const Json::Value& config) override;
@@ -65,11 +58,9 @@ private:
                             const boost::regex& reg,
                             const std::vector<std::string>& keys,
                             const StringView& logPath);
-    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent);
-    bool CheckRegFormat(const std::string& regStr);
+    void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent, bool overwritten = true);
 
     bool mSourceKeyOverwritten = false;
-    bool mRawLogTagOverwritten = false;
     std::vector<UserDefinedFormat> mUserDefinedFormat;
 
     int* mParseFailures = nullptr;
@@ -85,4 +76,5 @@ private:
     friend class ProcessorParseRegexNativeUnittest;
 #endif
 };
+
 } // namespace logtail

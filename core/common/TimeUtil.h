@@ -21,6 +21,7 @@
 
 #include "common/Strptime.h"
 #include "log_pb/sls_logs.pb.h"
+#include "pipeline/PipelineContext.h"
 
 // Time and timestamp utility.
 namespace logtail {
@@ -91,4 +92,9 @@ uint64_t GetPreciseTimestamp(uint64_t secondTimestamp,
                              const PreciseTimestampConfig& preciseTimestampConfig);
 bool ParseTimeZoneOffsetSecond(const std::string& logTZ, int& logTZSecond);
 
+void ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
+                                  const std::string& logTZ,
+                                  const PipelineContext& ctx,
+                                  const std::string& pluginName,
+                                  bool isAdjustmentNeeded);
 } // namespace logtail

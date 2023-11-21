@@ -42,18 +42,7 @@ bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     }
 
     if (mSourceTimezone != "") {
-        int logTZSecond = 0;
-        if (!ParseTimeZoneOffsetSecond(mSourceTimezone, logTZSecond)) {
-            errorMsg = "invalid log time zone specified, will parse log time without time zone adjusted, time zone: "
-                + mSourceTimezone;
-            PARAM_WARNING_DEFAULT(
-                mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
-        } else {
-            LOG_INFO(mContext->GetLogger(),
-                     ("set log time zone", mSourceTimezone)("project", mContext->GetProjectName())(
-                         "logstore", mContext->GetLogstoreName())("config", mContext->GetConfigName()));
-            mLogTimeZoneOffsetSecond = logTZSecond - GetLocalTimeZoneOffsetSecond();
-        }
+        ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mSourceTimezone, *mContext, sName, true);
     }
 
     mParseTimeFailures = &(GetContext().GetProcessProfile().parseTimeFailures);

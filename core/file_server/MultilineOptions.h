@@ -35,10 +35,6 @@ public:
     const std::shared_ptr<boost::regex>& GetEndPatternReg() const { return mEndPatternRegPtr; }
     bool IsMultiline() const { return mIsMultiline; }
 
-    std::shared_ptr<boost::regex> mStartPatternRegPtr;
-    std::shared_ptr<boost::regex> mContinuePatternRegPtr;
-    std::shared_ptr<boost::regex> mEndPatternRegPtr;
-
     Mode mMode = Mode::CUSTOM;
     std::string mStartPattern;
     std::string mContinuePattern;
@@ -47,6 +43,9 @@ public:
 private:
     bool ParseRegex(const std::string& pattern, std::shared_ptr<boost::regex>& reg);
 
+    std::shared_ptr<boost::regex> mStartPatternRegPtr;
+    std::shared_ptr<boost::regex> mContinuePatternRegPtr;
+    std::shared_ptr<boost::regex> mEndPatternRegPtr;
     bool mIsMultiline = false;
 };
 

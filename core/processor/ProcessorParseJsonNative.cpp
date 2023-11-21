@@ -26,7 +26,6 @@
 
 namespace logtail {
 const std::string ProcessorParseJsonNative::sName = "processor_parse_json_native";
-const std::string ProcessorParseJsonNative::UNMATCH_LOG_KEY = "__raw_log__";
 
 bool ProcessorParseJsonNative::Init(const Json::Value& config) {
     std::string errorMsg;
@@ -34,25 +33,10 @@ bool ProcessorParseJsonNative::Init(const Json::Value& config) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
         return false;
     }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseFail, sName, mContext->GetConfigName());
+    mCommonParserOptions.Init(config, *mContext, sName);
+    if (mCommonParserOptions.mRenamedSourceKey.empty()) {
+        mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseSucceed", mKeepingSourceWhenParseSucceed, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseSucceed, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalStringParam(config, "RenamedSourceKey", mRenamedSourceKey, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mRenamedSourceKey, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "CopingRawLog", mCopingRawLog, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mCopingRawLog, sName, mContext->GetConfigName());
-    }
-
-    if (mKeepingSourceWhenParseSucceed && mRenamedSourceKey == mSourceKey) {
-        mSourceKeyOverwritten = true;
-    }
-
     mParseFailures = &(GetContext().GetProcessProfile().parseFailures);
     mLogGroupSize = &(GetContext().GetProcessProfile().logGroupSize);
 
@@ -95,18 +79,19 @@ bool ProcessorParseJsonNative::ProcessEvent(const StringView& logPath, PipelineE
     bool parseSuccess = true;
     parseSuccess = JsonLogLineParser(sourceEvent, logPath, e);
 
-    if (!parseSuccess && (mKeepingSourceWhenParseFail || mCopingRawLog)) {
-        AddLog(UNMATCH_LOG_KEY, // __raw_log__
+    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
                rawContent,
-               sourceEvent); // legacy behavior, should use sourceKey
+               sourceEvent,
+               false); // legacy behavior, should use sourceKey
     }
-    if (parseSuccess || mKeepingSourceWhenParseFail) {
-        if (mKeepingSourceWhenParseSucceed && (!parseSuccess || !mRawLogTagOverwritten)) {
-            AddLog(mRenamedSourceKey, rawContent, sourceEvent); // __raw__
-        }
-        if (parseSuccess && !mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
-        }
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false); // __raw__
+    }
+    if (mCommonParserOptions.ShouldDelContent(parseSuccess, mSourceKey, mSourceKeyOverwritten)) {
+        sourceEvent.DelContent(mSourceKey);
+    }
+    if (parseSuccess || !mCommonParserOptions.mKeepingSourceWhenParseFail) {
         return true;
     }
     mProcDiscardRecordsTotal->Add(1);
@@ -170,9 +155,6 @@ bool ProcessorParseJsonNative::JsonLogLineParser(LogEvent& sourceEvent,
         if (contentKey.c_str() == mSourceKey) {
             mSourceKeyOverwritten = true;
         }
-        if (contentKey.c_str() == mRenamedSourceKey) {
-            mRawLogTagOverwritten = true;
-        }
 
         AddLog(StringView(contentKeyBuffer.data, contentKeyBuffer.size),
                StringView(contentValueBuffer.data, contentValueBuffer.size),
@@ -207,11 +189,16 @@ std::string ProcessorParseJsonNative::RapidjsonValueToString(const rapidjson::Va
     }
 }
 
-void ProcessorParseJsonNative::AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent) {
+void ProcessorParseJsonNative::AddLog(const StringView& key,
+                                      const StringView& value,
+                                      LogEvent& targetEvent,
+                                      bool overwritten) {
+    if (!overwritten && targetEvent.HasContent(key)) {
+        return;
+    }
     targetEvent.SetContentNoCopy(key, value);
-    size_t keyValueSize = key.size() + value.size();
-    *mLogGroupSize += keyValueSize + 5;
-    mProcParseOutSizeBytes->Add(keyValueSize);
+    *mLogGroupSize += key.size() + value.size() + 5;
+    mProcParseOutSizeBytes->Add(key.size() + value.size());
 }
 
 bool ProcessorParseJsonNative::IsSupportedEvent(const PipelineEventPtr& e) const {

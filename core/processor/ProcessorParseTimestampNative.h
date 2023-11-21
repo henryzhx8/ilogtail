@@ -24,11 +24,11 @@ class ProcessorParseTimestampNative : public Processor {
 public:
     static const std::string sName;
     static const std::string PRECISE_TIMESTAMP_DEFAULT_KEY;
-    // 源字段名。
+    // Source field name.
     std::string mSourceKey;
-    // 日志时间格式。 %Y/%m/%d %H:%M:%S
+    // Log time format. %Y/%m/%d %H:%M:%S
     std::string mSourceFormat;
-    // 日志时间所属时区。格式为GMT+HH:MM（东区）或GMT-HH:MM（西区）。
+    // The time zone to which the log time belongs. The format is GMT+HH:MM (Eastern Zone) or GMT-HH:MM (Western Zone).
     std::string mSourceTimezone = "";
     int32_t mSourceYear = -1;
 

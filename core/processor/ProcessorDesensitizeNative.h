@@ -26,23 +26,23 @@ class ProcessorDesensitizeNative : public Processor {
 public:
     static const std::string sName;
 
-    // 源字段名。
+    enum class DesensitizeMethod { MD5_OPTION, CONST_OPTION };
+
+    // Source field name.
     std::string mSourceKey;
-    // 脱敏方式。可选值包括：
-    // ● const：用常量替换敏感内容。
-    // ● md5：用敏感内容的MD5值替换相应内容。
-    int32_t mMethod;
-    // 用于替换敏感内容的常量字符串。
+    // Desensitization method. Optional values include:
+    // ● const: Replace sensitive content with constants.
+    // ● md5: Replace the corresponding content with the MD5 value of the sensitive content.
+    DesensitizeMethod mMethod;
+    // A constant string used to replace sensitive content.
     std::string mReplacingString;
-    // 敏感内容的前缀正则表达式。
+    // Prefix regular expression for sensitive content.
     std::string mContentPatternBeforeReplacedString;
-    // 敏感内容的正则表达式
+    // Regular expression for sensitive content.
     std::string mReplacedContentPattern;
-    // 是否替换所有的匹配的敏感内容。
+    // Whether to replace all matching sensitive content.
     bool mReplacingAll = true;
 
-    static const int32_t MD5_OPTION = 0;
-    static const int32_t CONST_OPTION = 1;
 
     const std::string& Name() const override { return sName; }
     bool Init(const Json::Value& config) override;

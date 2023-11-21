@@ -25,7 +25,6 @@ namespace logtail {
 const std::string ProcessorParseDelimiterNative::sName = "processor_parse_delimiter_native";
 
 const std::string ProcessorParseDelimiterNative::s_mDiscardedFieldKey = "_";
-const std::string ProcessorParseDelimiterNative::UNMATCH_LOG_KEY = "__raw_log__";
 
 bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     std::string errorMsg;
@@ -35,8 +34,8 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     if (!GetMandatoryStringParam(config, "Separator", mSeparator, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
-    if (mSeparator.size() > 3) {
-        errorMsg = "Separator length should be no more than 3";
+    if (mSeparator.size() > 4) {
+        errorMsg = "Separator length should be no more than 4";
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
 
@@ -49,7 +48,7 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         } else if (quoteStr.size() == 1) {
             mQuote = quoteStr[0];
         } else {
-            errorMsg = "quote for Delimiter Log only support single char(like \")";
+            errorMsg = "param Quote is not a single char";
             PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
         }
     }
@@ -76,19 +75,9 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         PARAM_WARNING_DEFAULT(
             mContext->GetLogger(), errorMsg, overflowedFieldsTreatment, sName, mContext->GetConfigName());
     }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseFail, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseSucceed", mKeepingSourceWhenParseSucceed, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseSucceed, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalStringParam(config, "RenamedSourceKey", mRenamedSourceKey, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mRenamedSourceKey, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "CopingRawLog", mCopingRawLog, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mCopingRawLog, sName, mContext->GetConfigName());
+    mCommonParserOptions.Init(config, *mContext, sName);
+    if (mCommonParserOptions.mRenamedSourceKey.empty()) {
+        mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
 
     if (!mSeparator.empty())
@@ -98,16 +87,9 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         mSeparatorChar = '\t';
     }
 
-    if (mKeepingSourceWhenParseSucceed && mRenamedSourceKey == mSourceKey) {
-        mSourceKeyOverwritten = true;
-    }
-
     for (auto key : mKeys) {
         if (key.compare(mSourceKey) == 0) {
             mSourceKeyOverwritten = true;
-        }
-        if (key.compare(mRenamedSourceKey) == 0) {
-            mRawLogTagOverwritten = true;
         }
     }
 
@@ -272,18 +254,21 @@ bool ProcessorParseDelimiterNative::ProcessEvent(const StringView& logPath, Pipe
                        sourceEvent);
             }
         }
-    } else if (mKeepingSourceWhenParseFail || mCopingRawLog) {
-        AddLog(UNMATCH_LOG_KEY, // __raw_log__
-               buffer,
-               sourceEvent); // legacy behavior, should use sourceKey
     }
-    if (parseSuccess || mKeepingSourceWhenParseFail) {
-        if (mKeepingSourceWhenParseSucceed && (!parseSuccess || !mRawLogTagOverwritten)) {
-            AddLog(mRenamedSourceKey, buffer, sourceEvent); // __raw__
-        }
-        if (parseSuccess && !mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
-        }
+
+    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
+               buffer,
+               sourceEvent,
+               false); // legacy behavior, should use sourceKey
+    }
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
+    }
+    if (mCommonParserOptions.ShouldDelContent(parseSuccess, mSourceKey, mSourceKeyOverwritten)) {
+        sourceEvent.DelContent(mSourceKey);
+    }
+    if (parseSuccess || !mCommonParserOptions.mKeepingSourceWhenParseFail) {
         return true;
     }
     mProcDiscardRecordsTotal->Add(1);
@@ -329,7 +314,13 @@ bool ProcessorParseDelimiterNative::SplitString(
     return true;
 }
 
-void ProcessorParseDelimiterNative::AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent) {
+void ProcessorParseDelimiterNative::AddLog(const StringView& key,
+                                           const StringView& value,
+                                           LogEvent& targetEvent,
+                                           bool overwritten) {
+    if (!overwritten && targetEvent.HasContent(key)) {
+        return;
+    }
     targetEvent.SetContentNoCopy(key, value);
     *mLogGroupSize += key.size() + value.size() + 5;
     mProcParseOutSizeBytes->Add(key.size() + value.size());

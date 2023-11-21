@@ -16,15 +16,17 @@
 
 #pragma once
 
-#include "rapidjson/document.h"
-#include "rapidjson/rapidjson.h"
-#include <fstream>
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/ostreamwrapper.h"
-#include "rapidjson/error/en.h"
-#include "observer/network/NetworkObserver.h"
-#include "observer/interface/helper.h"
 #include <arpa/inet.h>
+#include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/rapidjson.h>
+
+#include <fstream>
+
+#include "observer/interface/helper.h"
+#include "observer/network/NetworkObserver.h"
 
 namespace logtail {
 

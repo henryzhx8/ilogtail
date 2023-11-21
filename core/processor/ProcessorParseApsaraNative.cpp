@@ -25,7 +25,6 @@
 #include "models/LogEvent.h"
 #include "monitor/MetricConstants.h"
 #include "plugin/instance/ProcessorInstance.h"
-#include "processor/ProcessorParseTimestampNative.h"
 
 namespace logtail {
 const std::string ProcessorParseApsaraNative::sName = "processor_parse_apsara_native";
@@ -34,7 +33,6 @@ const std::string ProcessorParseApsaraNative::SLS_KEY_THREAD = "__THREAD__";
 const std::string ProcessorParseApsaraNative::SLS_KEY_FILE = "__FILE__";
 const std::string ProcessorParseApsaraNative::SLS_KEY_LINE = "__LINE__";
 const int32_t ProcessorParseApsaraNative::MAX_BASE_FIELD_NUM = 10;
-const std::string ProcessorParseApsaraNative::UNMATCH_LOG_KEY = "__raw_log__";
 
 bool ProcessorParseApsaraNative::Init(const Json::Value& config) {
     std::string errorMsg;
@@ -44,41 +42,17 @@ bool ProcessorParseApsaraNative::Init(const Json::Value& config) {
     if (!GetOptionalStringParam(config, "Timezone", mTimezone, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mTimezone, sName, mContext->GetConfigName());
     }
-    if (!GetOptionalBoolParam(config, "AdjustingMicroTimezone", mAdjustingMicroTimezone, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mAdjustingMicroTimezone, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseFail", mKeepingSourceWhenParseFail, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseFail, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "KeepingSourceWhenParseSucceed", mKeepingSourceWhenParseSucceed, errorMsg)) {
-        PARAM_WARNING_DEFAULT(
-            mContext->GetLogger(), errorMsg, mKeepingSourceWhenParseSucceed, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalStringParam(config, "RenamedSourceKey", mRenamedSourceKey, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mRenamedSourceKey, sName, mContext->GetConfigName());
-    }
-    if (!GetOptionalBoolParam(config, "CopingRawLog", mCopingRawLog, errorMsg)) {
-        PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mCopingRawLog, sName, mContext->GetConfigName());
+
+    mCommonParserOptions.Init(config, *mContext, sName);
+    if (mCommonParserOptions.mRenamedSourceKey.empty()) {
+        mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
 
     if (mTimezone != "") {
-        int logTZSecond = 0;
-        if (!ParseTimeZoneOffsetSecond(mTimezone, logTZSecond)) {
-            errorMsg = "invalid log time zone set: " + mTimezone;
-            PARAM_WARNING_DEFAULT(
-                mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
-        } else {
-            LOG_INFO(mContext->GetLogger(),
-                     ("set log time zone",
-                      mTimezone)("project", mContext->GetProjectName())("logstore", mContext->GetLogstoreName())(
-                         "module", sName)("config", mContext->GetConfigName())("offset seconds", logTZSecond));
-            mLogTimeZoneOffsetSecond = logTZSecond;
-        }
+        ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mTimezone, *mContext, sName, false);
     }
 
-    if (mKeepingSourceWhenParseSucceed && mRenamedSourceKey == mSourceKey) {
+    if (mCommonParserOptions.mKeepingSourceWhenParseSucceed && mCommonParserOptions.mRenamedSourceKey == mSourceKey) {
         mSourceKeyOverwritten = true;
     }
 
@@ -149,12 +123,12 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
                                           GetContext().GetRegion());
         mProcParseErrorTotal->Add(1);
         ++(*mParseFailures);
-        if (mKeepingSourceWhenParseFail || mCopingRawLog) {
-            AddLog(UNMATCH_LOG_KEY, // __raw_log__
+        if (mCommonParserOptions.ShouldAddUnmatchLog(false)) {
+            AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
                    buffer,
                    sourceEvent); // legacy behavior, should use sourceKey
-            if (mKeepingSourceWhenParseSucceed) {
-                AddLog(mRenamedSourceKey, buffer, sourceEvent); // __raw__
+            if (mCommonParserOptions.mKeepingSourceWhenParseSucceed) {
+                AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent); // __raw__
             }
             return true;
         }
@@ -204,7 +178,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
                     if (key == mSourceKey) {
                         sourceKeyOverwritten = true;
                     }
-                    if (key == mRenamedSourceKey) {
+                    if (key == mCommonParserOptions.mRenamedSourceKey) {
                         rawLogTagOverwritten = true;
                     }
                     colon_index = -1;
@@ -226,8 +200,8 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%lld", logTime_in_micro));
 #endif
     AddLog("microtime", StringView(sb.data, sb.size), sourceEvent);
-    if (mKeepingSourceWhenParseSucceed && !rawLogTagOverwritten) {
-        AddLog(mRenamedSourceKey, buffer, sourceEvent); // __raw__
+    if (mCommonParserOptions.mKeepingSourceWhenParseSucceed && !rawLogTagOverwritten) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent); // __raw__
     }
     if (!sourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
