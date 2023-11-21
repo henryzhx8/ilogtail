@@ -15,13 +15,11 @@
  */
 
 #pragma once
-#include <rapidjson/document.h>
-
-#include <map>
 #include <string>
-
+#include <map>
 #include "Closure.h"
 #include "Common.h"
+#include "rapidjson/document.h"
 
 namespace logtail {
 namespace sdk {

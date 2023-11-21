@@ -16,11 +16,12 @@
 
 #pragma once
 
+#include <json/json.h>
+
 #include <cstdint>
 #include <string>
 
 #include "common/LogstoreFeedbackKey.h"
-#include "json/json.h"
 #include "logger/Logger.h"
 #include "models/PipelineEventGroup.h"
 #include "monitor/LogFileProfiler.h"

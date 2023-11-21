@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <json/json.h>
+
 #include <cstdint>
 #include <string>
 #include <type_traits>
@@ -23,7 +25,6 @@
 #include <vector>
 
 #include "common/StringTools.h"
-#include "json/json.h"
 #include "logger/Logger.h"
 
 #define PARAM_ERROR_RETURN(logger, msg, module, config) \

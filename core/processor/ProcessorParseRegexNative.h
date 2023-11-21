@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "boost/regex.hpp"
+#include <boost/regex.hpp>
+
 #include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"

@@ -19,8 +19,9 @@
 #include <string>
 #include <utility>
 
-#include "boost/regex.hpp"
 #include "json/json.h"
+#include "boost/regex.hpp"
+
 #include "pipeline/PipelineContext.h"
 
 namespace logtail {
