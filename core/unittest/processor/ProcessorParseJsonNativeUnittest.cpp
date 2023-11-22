@@ -58,7 +58,7 @@ void ProcessorParseJsonNativeUnittest::TestInit() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     // run function
     ProcessorParseJsonNative& processor = *(new ProcessorParseJsonNative);
@@ -92,7 +92,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -136,8 +136,8 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
             {
                 "contents" :
                 {
-                    "__raw__" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"}",
                     "log.file.offset": "0",
+                    "rawLog" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"}",
                     "time" : "07/Jul/2022:10:30:28",
                     "url" : "POST /PutData?Category=YunOsAccountOpLog HTTP/1.1"
                 },
@@ -148,13 +148,13 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
             {
                 "contents" :
                 {
-                    "__raw__" : "{\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "address" : "{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"}",
                     "age":"25",
                     "courses":"[\"Math\",\"English\",\"Science\"]",
                     "is_student":"false",
                     "log.file.offset":"0",
                     "name":"Mike",
+                    "rawLog" : "{\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "scores":"{\"Math\":90,\"English\":85,\"Science\":95}"
                 },
                 "timestamp" : 12345678901,
@@ -175,7 +175,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonContent() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -209,7 +209,6 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonContent() {
             {
                 "contents" :
                 {
-                    "__raw__" : "{\"content\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "address" : "{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"}",
                     "age":"25",
                     "content":"content_test",
@@ -217,6 +216,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonContent() {
                     "is_student":"false",
                     "log.file.offset":"0",
                     "name":"Mike",
+                    "rawLog" : "{\"content\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "scores":"{\"Math\":90,\"English\":85,\"Science\":95}"
                 },
                 "timestamp" : 12345678901,
@@ -237,7 +237,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonRaw() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -248,7 +248,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonRaw() {
             {
                 "contents" :
                 {
-                    "content" : "{\"__raw__\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
+                    "content" : "{\"rawLog\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "log.file.offset": "0"
                 },
                 "timestampNanosecond" : 0,
@@ -271,13 +271,13 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonRaw() {
             {
                 "contents" :
                 {
-                    "__raw__" : "content_test",
                     "address" : "{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"}",
                     "age":"25",
                     "courses":"[\"Math\",\"English\",\"Science\"]",
                     "is_student":"false",
                     "log.file.offset":"0",
                     "name":"Mike",
+                    "rawLog" : "content_test",
                     "scores":"{\"Math\":90,\"English\":85,\"Science\":95}"
                 },
                 "timestamp" : 12345678901,
@@ -299,7 +299,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventKeepUnmatch() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -337,7 +337,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventKeepUnmatch() {
         = "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"";
     APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcOutRecordsTotal->GetValue());
-    expectValue = "__raw_log__{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": "
+    expectValue = "rawLog{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": "
                   "\"07/Jul/2022:10:30:28\"";
     APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseOutSizeBytes->GetValue());
 
@@ -352,9 +352,8 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"",
-                    "content" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"",
-                    "log.file.offset":"0"
+                    "log.file.offset":"0",
+                    "rawLog" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\""
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond" : 0,
@@ -374,7 +373,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventDiscardUnmatch() {
     config["KeepingSourceWhenParseFail"] = false;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();

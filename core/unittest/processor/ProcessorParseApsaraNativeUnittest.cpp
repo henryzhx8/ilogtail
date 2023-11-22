@@ -58,7 +58,7 @@ void ProcessorParseApsaraNativeUnittest::TestInit() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["Timezone"] = "";
 
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
@@ -75,7 +75,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessWholeLine() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["Timezone"] = "";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -176,7 +176,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessWholeLinePart() {
     config["KeepingSourceWhenParseFail"] = false;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["Timezone"] = "";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -242,7 +242,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessKeyOverwritten() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["Timezone"] = "";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -253,7 +253,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessKeyOverwritten() {
             {
                 "contents" :
                 {
-                    "content" : "[2023-09-04 13:15:04.862181]	[info]	[385658]	content:100		__raw__:success		__raw_log__:success",
+                    "content" : "[2023-09-04 13:15:04.862181]	[info]	[385658]	content:100		rawLog:success		__raw_log__:success",
                     "log.file.offset": "0"
                 },
                 "timestamp" : 12345678901,
@@ -285,11 +285,11 @@ void ProcessorParseApsaraNativeUnittest::TestProcessKeyOverwritten() {
                 "contents" :
                 {
                     "__THREAD__": "385658",
-                    "__raw__": "success",
                     "__raw_log__": "success",
                     "content": "100",
                     "log.file.offset": "0",
-                    "microtime": "1693833304862181"
+                    "microtime": "1693833304862181",
+                    "rawLog": "success"
                 },
                 "timestamp" : 1693833304,
                 "timestampNanosecond": 862181000,
@@ -298,10 +298,9 @@ void ProcessorParseApsaraNativeUnittest::TestProcessKeyOverwritten() {
             {
                 "contents" :
                 {
-                    "__raw__": "value1",
                     "__raw_log__": "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog": "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -321,7 +320,7 @@ void ProcessorParseApsaraNativeUnittest::TestUploadRawLog() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["Timezone"] = "";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -366,9 +365,9 @@ void ProcessorParseApsaraNativeUnittest::TestUploadRawLog() {
                     "/ilogtail/AppConfigBase.cpp": "100",
                     "AppConfigBase AppConfigBase": "success",
                     "__THREAD__": "385658",
-                    "__raw__": "[2023-09-04 13:15:04.862181]\t[info]\t[385658]\t/ilogtail/AppConfigBase.cpp:100\t\tAppConfigBase AppConfigBase:success",
                     "log.file.offset": "0",
-                    "microtime": "1693833304862181"
+                    "microtime": "1693833304862181",
+                    "rawLog" : "[2023-09-04 13:15:04.862181]\t[info]\t[385658]\t/ilogtail/AppConfigBase.cpp:100\t\tAppConfigBase AppConfigBase:success"
                 },
                 "timestamp" : 1693833304,
                 "timestampNanosecond": 862181000,
@@ -377,10 +376,9 @@ void ProcessorParseApsaraNativeUnittest::TestUploadRawLog() {
             {
                 "contents" :
                 {
-                    "__raw__": "value1",
                     "__raw_log__": "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog": "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -400,7 +398,7 @@ void ProcessorParseApsaraNativeUnittest::TestAddLog() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
 
     ProcessorParseApsaraNative& processor = *(new ProcessorParseApsaraNative);
     processor.SetContext(mContext);
@@ -424,7 +422,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
     PipelineEventGroup eventGroup(sourceBuffer);
@@ -492,9 +490,8 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -503,9 +500,8 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -514,9 +510,8 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -525,9 +520,8 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -536,9 +530,8 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content": "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -555,7 +548,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventKeepUnmatch() {
     std::string expectValue = "value1";
     APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcOutRecordsTotal->GetValue());
-    expectValue = "__raw_log__value1";
+    expectValue = "rawLogvalue1";
     APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseOutSizeBytes->GetValue());
 
     APSARA_TEST_EQUAL_FATAL(0, processor.mProcDiscardRecordsTotal->GetValue());
@@ -570,7 +563,7 @@ void ProcessorParseApsaraNativeUnittest::TestProcessEventDiscardUnmatch() {
     config["KeepingSourceWhenParseFail"] = false;
     config["KeepingSourceWhenParseSucceed"] = false;
     config["CopingRawLog"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
     PipelineEventGroup eventGroup(sourceBuffer);

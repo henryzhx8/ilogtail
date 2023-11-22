@@ -93,7 +93,9 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     if (!sourceEvent.HasContent(mSourceKey)) {
         return true;
     }
+    mSourceKeyOverwritten = false;
     StringView buffer = sourceEvent.GetContent(mSourceKey);
+    auto rawContent = sourceEvent.GetContent(mSourceKey);
     mProcParseInSizeBytes->Add(buffer.size());
     int64_t logTime_in_micro = 0;
     time_t logTime = ApsaraEasyReadLogTimeParser(buffer, timeStrCache, lastLogTime, logTime_in_micro);
@@ -119,18 +121,22 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
                                           GetContext().GetRegion());
         mProcParseErrorTotal->Add(1);
         ++(*mParseFailures);
-        if (mCommonParserOptions.mKeepingSourceWhenParseFail || mCommonParserOptions.mCopingRawLog) {
-            AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
-                   buffer,
-                   sourceEvent,
-                   false); // legacy behavior, should use sourceKey
-            if (mCommonParserOptions.mKeepingSourceWhenParseSucceed) {
-                AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
+        if (mCommonParserOptions.ShouldAddRenamedSourceLog(false, mSourceKey)) {
+            if (!mSourceKeyOverwritten) {
+                sourceEvent.DelContent(mSourceKey);
             }
-            return true;
+            AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
+        } else if (mCommonParserOptions.ShouldAddEarseSourceLog(false) && !mSourceKeyOverwritten) {
+            sourceEvent.DelContent(mSourceKey);
         }
-        mProcDiscardRecordsTotal->Add(1);
-        return false;
+        if (mCommonParserOptions.ShouldAddUnmatchLog(false)) {
+            AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, rawContent, sourceEvent, false);
+        }
+        if (mCommonParserOptions.ShouldEraseEvent(false, sourceEvent)) {
+            mProcDiscardRecordsTotal->Add(1);
+            return false;
+        }
+        return true;
     }
     if (BOOL_FLAG(ilogtail_discard_old_data)
         && (time(NULL) - logTime + mLogTimeZoneOffsetSecond) > INT32_FLAG(ilogtail_discard_interval)) {
@@ -163,7 +169,6 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     int32_t colon_index = -1;
     int32_t index = -1;
     index = ParseApsaraBaseFields(buffer, sourceEvent);
-    mSourceKeyOverwritten = false;
     if (buffer.data()[index] != 0) {
         do {
             ++index;
@@ -194,9 +199,11 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
 #endif
     AddLog("microtime", StringView(sb.data, sb.size), sourceEvent);
     if (mCommonParserOptions.ShouldAddRenamedSourceLog(true, mSourceKey)) {
-        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false); // __raw__
-    }
-    if (mCommonParserOptions.ShouldDelContent(true, mSourceKey, mSourceKeyOverwritten)) {
+        if (!mSourceKeyOverwritten) {
+            sourceEvent.DelContent(mSourceKey);
+        }
+        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
+    } else if (mCommonParserOptions.ShouldAddEarseSourceLog(true) && !mSourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
     }
     return true;

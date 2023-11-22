@@ -78,23 +78,22 @@ bool ProcessorParseJsonNative::ProcessEvent(const StringView& logPath, PipelineE
     bool parseSuccess = true;
     parseSuccess = JsonLogLineParser(sourceEvent, logPath, e);
 
-    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
-        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
-               rawContent,
-               sourceEvent,
-               false); // legacy behavior, should use sourceKey
-    }
     if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
-        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false); // __raw__
-    }
-    if (mCommonParserOptions.ShouldDelContent(parseSuccess, mSourceKey, mSourceKeyOverwritten)) {
+        if (!mSourceKeyOverwritten) {
+            sourceEvent.DelContent(mSourceKey);
+        }
+        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
+    } else if (mCommonParserOptions.ShouldAddEarseSourceLog(parseSuccess) && !mSourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
     }
-    if (parseSuccess || mCommonParserOptions.mKeepingSourceWhenParseFail) {
-        return true;
+    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, rawContent, sourceEvent, false);
     }
-    mProcDiscardRecordsTotal->Add(1);
-    return false;
+    if (mCommonParserOptions.ShouldEraseEvent(parseSuccess, sourceEvent)) {
+        mProcDiscardRecordsTotal->Add(1);
+        return false;
+    }
+    return true;
 }
 
 bool ProcessorParseJsonNative::JsonLogLineParser(LogEvent& sourceEvent,

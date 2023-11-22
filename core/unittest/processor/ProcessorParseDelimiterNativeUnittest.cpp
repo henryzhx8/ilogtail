@@ -66,7 +66,7 @@ void ProcessorParseDelimiterNativeUnittest::TestAllowingShortenedFields() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = true;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -105,9 +105,9 @@ void ProcessorParseDelimiterNativeUnittest::TestAllowingShortenedFields() {
         "events": [
             {
                 "contents": {
-                    "__raw__": "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog',0.024",
                     "log.file.offset": "0",
                     "method": "POST",
+                    "rawLog": "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog',0.024",
                     "request_time": "0.024",
                     "time": "2013-10-31 21:03:49",
                     "url": "PutData?Category=YunOsAccountOpLog"
@@ -118,8 +118,8 @@ void ProcessorParseDelimiterNativeUnittest::TestAllowingShortenedFields() {
             },
             {
                 "contents": {
-                    "__raw__": "value1",
                     "log.file.offset": "0",
+                    "rawLog": "value1",
                     "time": "value1"
                 },
                 "timestamp": 12345678901,
@@ -146,7 +146,7 @@ void ProcessorParseDelimiterNativeUnittest::TestInit() {
     config["Keys"].append("request_time");
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
 
     ProcessorParseDelimiterNative& processor = *(new ProcessorParseDelimiterNative);
@@ -167,7 +167,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessWholeLine() {
     config["Keys"].append("request_time");
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -251,7 +251,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessQuote() {
     config["Keys"].append("request_time");
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -314,9 +314,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessQuote() {
             {
                 "contents" :
                 {
-                    "__raw_log__": "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog,0.024",
-                    "content" : "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog,0.024",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog": "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog,0.024"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -325,9 +324,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessQuote() {
             {
                 "contents" :
                 {
-                    "__raw_log__": "2013-10-31 21:03:49,POST,'PutData?Category=YunOs'AccountOpLog',0.024",
-                    "content" : "2013-10-31 21:03:49,POST,'PutData?Category=YunOs'AccountOpLog',0.024",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog": "2013-10-31 21:03:49,POST,'PutData?Category=YunOs'AccountOpLog',0.024"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -348,13 +346,13 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessKeyOverwritten() {
     config["Quote"] = "'";
     config["Keys"] = Json::arrayValue;
     config["Keys"].append("time");
-    config["Keys"].append("__raw__");
+    config["Keys"].append("rawLog");
     config["Keys"].append("content");
     config["Keys"].append("__raw_log__");
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -395,10 +393,10 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessKeyOverwritten() {
             {
                 "contents" :
                 {
-                    "__raw__": "POST",
                     "__raw_log__": "0.024",
                     "content": "PutData?Category=YunOsAccountOpLog",
                     "log.file.offset": "0",
+                    "rawLog": "POST",
                     "time": "2013-10-31 21:03:49"
                 },
                 "timestamp" : 12345678901,
@@ -408,10 +406,10 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessKeyOverwritten() {
             {
                 "contents" :
                 {
-                    "__raw__": "value1",
                     "__raw_log__": "value1",
                     "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog": "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -438,7 +436,7 @@ void ProcessorParseDelimiterNativeUnittest::TestUploadRawLog() {
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = true;
     config["CopingRawLog"] = true;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -479,9 +477,9 @@ void ProcessorParseDelimiterNativeUnittest::TestUploadRawLog() {
             {
                 "contents" :
                 {
-                    "__raw__" : "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog',0.024",
                     "log.file.offset": "0",
                     "method": "POST",
+                    "rawLog" : "2013-10-31 21:03:49,POST,'PutData?Category=YunOsAccountOpLog',0.024",
                     "request_time": "0.024",
                     "time": "2013-10-31 21:03:49",
                     "url": "PutData?Category=YunOsAccountOpLog"
@@ -493,10 +491,9 @@ void ProcessorParseDelimiterNativeUnittest::TestUploadRawLog() {
             {
                 "contents" :
                 {
-                    "__raw__": "value1",
                     "__raw_log__": "value1",
-                    "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog": "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -547,7 +544,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
     config["Keys"].append("request_time");
     config["KeepingSourceWhenParseFail"] = true;
     config["KeepingSourceWhenParseSucceed"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
@@ -616,9 +613,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -627,9 +623,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -638,9 +633,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -649,9 +643,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -660,9 +653,8 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "__raw_log__" : "value1",
-                    "content" : "value1",
-                    "log.file.offset": "0"
+                    "log.file.offset": "0",
+                    "rawLog" : "value1"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -679,7 +671,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventKeepUnmatch() {
     std::string expectValue = "value1";
     APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseInSizeBytes->GetValue());
     APSARA_TEST_EQUAL_FATAL(count, processorInstance.mProcOutRecordsTotal->GetValue());
-    expectValue = "__raw_log__value1";
+    expectValue = "rawLogvalue1";
     APSARA_TEST_EQUAL_FATAL((expectValue.length()) * count, processor.mProcParseOutSizeBytes->GetValue());
 
     APSARA_TEST_EQUAL_FATAL(0, processor.mProcDiscardRecordsTotal->GetValue());
@@ -700,7 +692,7 @@ void ProcessorParseDelimiterNativeUnittest::TestProcessEventDiscardUnmatch() {
     config["Keys"].append("request_time");
     config["KeepingSourceWhenParseFail"] = false;
     config["KeepingSourceWhenParseSucceed"] = false;
-    config["RenamedSourceKey"] = "__raw__";
+    config["RenamedSourceKey"] = "rawLog";
     config["AllowingShortenedFields"] = false;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();

@@ -17,11 +17,34 @@
 #pragma once
 #include <memory>
 #include <string>
+
 #include "common/Constants.h"
 #include "models/PipelineEventPtr.h"
 #include "reader/SourceBuffer.h"
 
 namespace logtail {
+#ifdef APSARA_UNIT_TEST_MAIN
+const std::string EVENT_GROUP_META_AGENT_TAG = "agent.tag";
+const std::string EVENT_GROUP_META_HOST_IP = "host.ip";
+const std::string EVENT_GROUP_META_HOST_NAME = "host.name";
+const std::string EVENT_GROUP_META_LOG_TOPIC = "log.topic";
+const std::string EVENT_GROUP_META_LOG_FILE_PATH = "log.file.path";
+const std::string EVENT_GROUP_META_LOG_FILE_PATH_RESOLVED = "log.file.path_resolved";
+const std::string EVENT_GROUP_META_LOG_FILE_INODE = "log.file.inode";
+const std::string EVENT_GROUP_META_LOG_FILE_OFFSET = "log.file.offset";
+const std::string EVENT_GROUP_META_LOG_FILE_LENGTH = "log.file.length";
+
+const std::string EVENT_GROUP_META_K8S_CLUSTER_ID = "k8s.cluster.id";
+const std::string EVENT_GROUP_META_K8S_NODE_NAME = "k8s.node.name";
+const std::string EVENT_GROUP_META_K8S_NODE_IP = "k8s.node.ip";
+const std::string EVENT_GROUP_META_K8S_NAMESPACE = "k8s.namespace.name";
+const std::string EVENT_GROUP_META_K8S_POD_UID = "k8s.pod.uid";
+const std::string EVENT_GROUP_META_K8S_POD_NAME = "k8s.pod.name";
+const std::string EVENT_GROUP_META_CONTAINER_NAME = "container.name";
+const std::string EVENT_GROUP_META_CONTAINER_IP = "container.ip";
+const std::string EVENT_GROUP_META_CONTAINER_IMAGE_NAME = "container.image.name";
+const std::string EVENT_GROUP_META_CONTAINER_IMAGE_ID = "container.image.id";
+#endif
 
 // referrences
 // https://opentelemetry.io/docs/specs/otel/logs/data-model-appendix/#elastic-common-schema
@@ -66,7 +89,7 @@ public:
     PipelineEventGroup& operator=(const PipelineEventGroup&) = delete;
     PipelineEventGroup(PipelineEventGroup&&) noexcept = default;
     PipelineEventGroup& operator=(PipelineEventGroup&&) noexcept = default;
-    
+
 
     const EventsContainer& GetEvents() const { return mEvents; }
     EventsContainer& MutableEvents() { return mEvents; }
@@ -86,9 +109,7 @@ public:
     void DelMetadata(EventGroupMetaKey key);
     GroupMetadata& MutableAllMetadata() { return mMetadata; };
     void SwapAllMetadata(GroupMetadata& other) { mMetadata.swap(other); }
-    void SetAllMetadata(GroupMetadata& other) {
-        mMetadata = other;
-    }
+    void SetAllMetadata(GroupMetadata& other) { mMetadata = other; }
 
     void SetTag(const StringView& key, const StringView& val);
     void SetTag(const std::string& key, const std::string& val);

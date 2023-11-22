@@ -96,30 +96,28 @@ bool ProcessorParseRegexNative::ProcessEvent(const StringView& logPath, Pipeline
     auto rawContent = sourceEvent.GetContent(mSourceKey);
     bool parseSuccess = true;
 
-    // const UserDefinedFormat& format = mUserDefinedFormat[i];
     if (mIsWholeLineMode) {
         parseSuccess = WholeLineModeParser(sourceEvent, mKeys.empty() ? DEFAULT_CONTENT_KEY : mKeys[0]);
     } else {
         parseSuccess = RegexLogLineParser(sourceEvent, mReg, mKeys, logPath);
     }
 
-    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
-        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, // __raw_log__
-               rawContent,
-               sourceEvent,
-               false); // legacy behavior, should use sourceKey
-    }
     if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
-        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false); // __raw__
-    }
-    if (mCommonParserOptions.ShouldDelContent(parseSuccess, mSourceKey, mSourceKeyOverwritten)) {
+        if (!mSourceKeyOverwritten) {
+            sourceEvent.DelContent(mSourceKey);
+        }
+        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
+    } else if (mCommonParserOptions.ShouldAddEarseSourceLog(parseSuccess) && !mSourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
     }
-    if (parseSuccess || mCommonParserOptions.mKeepingSourceWhenParseFail) {
-        return true;
+    if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, rawContent, sourceEvent, false);
     }
-    mProcDiscardRecordsTotal->Add(1);
-    return false;
+    if (mCommonParserOptions.ShouldEraseEvent(parseSuccess, sourceEvent)) {
+        mProcDiscardRecordsTotal->Add(1);
+        return false;
+    }
+    return true;
 }
 
 bool ProcessorParseRegexNative::WholeLineModeParser(LogEvent& sourceEvent, const std::string& key) {
