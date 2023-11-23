@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "common/CommonParserOptions.h"
 #include "common/TimeUtil.h"
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
+#include "processor/CommonParserOptions.h"
 namespace logtail {
 
 class ProcessorParseApsaraNative : public Processor {

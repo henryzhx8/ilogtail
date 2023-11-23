@@ -49,7 +49,10 @@ bool ProcessorParseApsaraNative::Init(const Json::Value& config) {
     }
 
     if (mTimezone != "") {
-        ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mTimezone, *mContext, sName, false);
+        if (!ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mTimezone, errorMsg, false)) {
+            PARAM_WARNING_DEFAULT(
+                mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
+        };
     }
 
     mLogGroupSize = &(GetContext().GetProcessProfile().logGroupSize);

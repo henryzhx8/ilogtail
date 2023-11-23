@@ -72,7 +72,7 @@ void ProcessorParseRegexNative::Process(PipelineEventGroup& logGroup) {
     EventsContainer& events = logGroup.MutableEvents();
     // works good normally. poor performance if most data need to be discarded.
     for (auto it = events.begin(); it != events.end();) {
-        if (ProcessorParseRegexNative::ProcessEvent(logPath, *it)) {
+        if (ProcessEvent(logPath, *it)) {
             ++it;
         } else {
             it = events.erase(it);

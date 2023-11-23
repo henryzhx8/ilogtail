@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "parser/DelimiterModeFsmParser.h"
 #include "plugin/interface/Processor.h"
+#include "processor/CommonParserOptions.h"
 
 namespace logtail {
 

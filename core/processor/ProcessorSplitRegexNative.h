@@ -16,11 +16,10 @@
 
 #pragma once
 
-#include <boost/regex.hpp>
 
-#include "common/CommonParserOptions.h"
 #include "file_server/MultilineOptions.h"
 #include "plugin/interface/Processor.h"
+#include "processor/CommonParserOptions.h"
 
 namespace logtail {
 
@@ -41,8 +40,6 @@ protected:
     bool IsSupportedEvent(const PipelineEventPtr& e) const override;
 
 private:
-    bool IsMultiline() const;
-    bool ParseRegex(const std::string& pattern, std::shared_ptr<boost::regex>& reg);
     void ProcessEvent(PipelineEventGroup& logGroup,
                       const StringView& logPath,
                       const PipelineEventPtr& e,

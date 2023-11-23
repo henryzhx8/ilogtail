@@ -15,17 +15,17 @@
  */
 #pragma once
 
+#include <json/json.h>
+
 #include <string>
 
 #include "common/Constants.h"
-#include "json/json.h"
 #include "pipeline/PipelineContext.h"
 #ifdef APSARA_UNIT_TEST_MAIN
 #include "models/PipelineEventGroup.h"
 #endif
 namespace logtail {
-class CommonParserOptions {
-public:
+struct CommonParserOptions {
     bool Init(const Json::Value& config, const PipelineContext& ctx, const std::string& pluginName);
     bool mKeepingSourceWhenParseFail = false;
     bool mKeepingSourceWhenParseSucceed = false;
@@ -33,21 +33,21 @@ public:
     bool mCopingRawLog = false;
     const std::string UNMATCH_LOG_KEY = "__raw_log__";
 
-    bool ShouldAddUnmatchLog(const bool& parseSuccess) {
+    bool ShouldAddUnmatchLog(bool parseSuccess) {
         return !parseSuccess && mKeepingSourceWhenParseFail && mCopingRawLog;
     }
 
     // Parsing successful and original logs are retained or parsing failed and original logs are retained.
-    bool ShouldAddRenamedSourceLog(const bool& parseSuccess, const std::string& sourceKey) {
+    bool ShouldAddRenamedSourceLog(bool parseSuccess, const std::string& sourceKey) {
         return (((parseSuccess && mKeepingSourceWhenParseSucceed) || (!parseSuccess && mKeepingSourceWhenParseFail))
                 && sourceKey != mRenamedSourceKey);
     }
     // Parsing successful but original logs are not retained or parsing failed but original logs are not retained.
-    bool ShouldAddEarseSourceLog(const bool& parseSuccess) {
+    bool ShouldAddEarseSourceLog(bool parseSuccess) {
         return (((parseSuccess && !mKeepingSourceWhenParseSucceed) || (!parseSuccess && !mKeepingSourceWhenParseFail)));
     }
 
-    bool ShouldEraseEvent(const bool& parseSuccess, const LogEvent& sourceEvent) {
+    bool ShouldEraseEvent(bool parseSuccess, const LogEvent& sourceEvent) {
         if (!parseSuccess && !mKeepingSourceWhenParseFail) {
             const auto& contents = sourceEvent.GetContents();
             if (contents.empty()) {

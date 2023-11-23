@@ -18,9 +18,9 @@
 
 #include <boost/regex.hpp>
 
-#include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
+#include "processor/CommonParserOptions.h"
 
 namespace logtail {
 class ProcessorParseRegexNative : public Processor {

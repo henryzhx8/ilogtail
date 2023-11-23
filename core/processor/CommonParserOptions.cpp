@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "common/CommonParserOptions.h"
+#include "processor/CommonParserOptions.h"
 
 #include "common/ParamExtractor.h"
 
@@ -37,5 +37,4 @@ bool CommonParserOptions::Init(const Json::Value& config, const PipelineContext&
     }
     return true;
 }
-
 } // namespace logtail

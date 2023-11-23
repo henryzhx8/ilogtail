@@ -33,6 +33,7 @@ bool ProcessorSplitLogStringNative::Init(const Json::Value& config) {
     if (!GetOptionalStringParam(config, "SplitKey", mSplitKey, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSplitKey, sName, mContext->GetConfigName());
     }
+    // Compatible with old logic.
     int32_t splitter = '\n';
     if (!GetOptionalIntParam(config, "SplitChar", splitter, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, "\\n", sName, mContext->GetConfigName());

@@ -38,12 +38,13 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         errorMsg = "Separator length should be no more than 4";
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
-
+    // Compatible with old logic.
     if (mSeparator == "\\t")
         mSeparator = '\t';
     std::string quoteStr = "\"";
+    bool res = GetOptionalStringParam(config, "Quote", quoteStr, errorMsg);
     if (mSeparator.size() == 1) {
-        if (!GetOptionalStringParam(config, "Quote", quoteStr, errorMsg)) {
+        if (!res) {
             PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mQuote, sName, mContext->GetConfigName());
         } else if (quoteStr.size() == 1) {
             mQuote = quoteStr[0];
@@ -51,6 +52,9 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
             errorMsg = "param Quote is not a single char";
             PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
         }
+    } else if (mSeparator.size() > 1 && res) {
+        errorMsg = "param Quote is not allowed when Separator length is more than 1";
+        PARAM_WARNING_IGNORE(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
 
     if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {

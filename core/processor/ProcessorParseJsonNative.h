@@ -17,9 +17,9 @@
 
 #include <rapidjson/document.h>
 
-#include "common/CommonParserOptions.h"
 #include "models/LogEvent.h"
 #include "plugin/interface/Processor.h"
+#include "processor/CommonParserOptions.h"
 
 namespace logtail {
 

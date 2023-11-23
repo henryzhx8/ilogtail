@@ -389,17 +389,16 @@ bool ParseTimeZoneOffsetSecond(const std::string& logTZ, int& logTZSecond) {
     return true;
 }
 
-void ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
+bool ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
                                   const std::string& logTZ,
-                                  const PipelineContext& ctx,
-                                  const std::string& pluginName,
+                                  std::string& errorMsg,
                                   bool isAdjustmentNeeded) {
     int logTZSecond = 0;
     std::string errorMsg;
     if (!ParseTimeZoneOffsetSecond(logTZ, logTZSecond)) {
         errorMsg
             = "invalid log time zone specified, will parse log time without time zone adjusted, time zone: " + logTZ;
-        PARAM_WARNING_DEFAULT(ctx.GetLogger(), errorMsg, logTimeZoneOffsetSecond, pluginName, ctx.GetConfigName());
+        return false;
     } else {
         if (isAdjustmentNeeded) {
             logTimeZoneOffsetSecond = logTZSecond - GetLocalTimeZoneOffsetSecond();
@@ -407,6 +406,7 @@ void ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
             logTimeZoneOffsetSecond = logTZSecond;
         }
     }
+    return true;
 }
 
 } // namespace logtail

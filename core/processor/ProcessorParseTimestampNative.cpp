@@ -68,7 +68,10 @@ bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     }
 
     if (mSourceTimezone != "") {
-        ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mSourceTimezone, *mContext, sName, true);
+        if (!ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mSourceTimezone, errorMsg, true)) {
+            PARAM_WARNING_DEFAULT(
+                mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
+        };
     }
 
     mParseTimeFailures = &(GetContext().GetProcessProfile().parseTimeFailures);

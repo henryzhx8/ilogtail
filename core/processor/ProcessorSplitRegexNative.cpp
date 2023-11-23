@@ -16,6 +16,7 @@
 
 #include "processor/ProcessorSplitRegexNative.h"
 
+#include <boost/regex.hpp>
 #include <string>
 
 #include "app_config/AppConfig.h"
