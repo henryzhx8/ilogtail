@@ -285,28 +285,6 @@ void ProcessorParseTimestampNativeUnittest::TestCheckTime() {
     APSARA_TEST_TRUE_FATAL(CheckTimeFormatV2(timeValue, timeFormat));
 }
 
-bool CheckTimeFormatV2(const std::string& timeValue, const std::string& timeFormat) {
-    LogtailTime logTime = {0, 0};
-
-    int nanosecondLength = -1;
-    const char* strptimeResult = NULL;
-    strptimeResult = Strptime(timeValue.c_str(), timeFormat.c_str(), &logTime, nanosecondLength, -1);
-    if (NULL == strptimeResult) {
-        return false;
-    }
-    return true;
-}
-
-bool CheckTimeFormatV1(const std::string& timeValue, const std::string& timeFormat) {
-    struct tm tm;
-
-    if (NULL == strptime(timeValue.c_str(), timeFormat.c_str(), &tm)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
 void ProcessorParseTimestampNativeUnittest::TestInit() {
     // make config
     Json::Value config;

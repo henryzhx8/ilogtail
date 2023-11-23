@@ -394,7 +394,6 @@ bool ParseLogTimeZoneOffsetSecond(int& logTimeZoneOffsetSecond,
                                   std::string& errorMsg,
                                   bool isAdjustmentNeeded) {
     int logTZSecond = 0;
-    std::string errorMsg;
     if (!ParseTimeZoneOffsetSecond(logTZ, logTZSecond)) {
         errorMsg
             = "invalid log time zone specified, will parse log time without time zone adjusted, time zone: " + logTZ;

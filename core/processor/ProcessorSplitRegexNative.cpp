@@ -55,18 +55,6 @@ bool ProcessorSplitRegexNative::Init(const Json::Value& config) {
     return true;
 }
 
-bool ProcessorSplitRegexNative::ParseRegex(const std::string& pattern, std::shared_ptr<boost::regex>& reg) {
-    if (pattern.empty() || pattern == ".*") {
-        return true;
-    }
-    try {
-        reg.reset(new boost::regex(pattern));
-    } catch (...) {
-        return false;
-    }
-    return true;
-}
-
 void ProcessorSplitRegexNative::Process(PipelineEventGroup& logGroup) {
     if (logGroup.GetEvents().empty()) {
         return;
