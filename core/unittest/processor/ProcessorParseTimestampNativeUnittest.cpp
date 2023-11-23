@@ -73,8 +73,8 @@ bool CheckTimeFormatV1(const std::string& timeValue, const std::string& timeForm
 }
 
 void ProcessorParseTimestampNativeUnittest::TestCheckTime() {
-    string timeValue;
-    string timeFormat;
+    std::string timeValue;
+    std::string timeFormat;
     timeValue = "Fri";
     timeFormat = "%a";
     APSARA_TEST_TRUE_FATAL(CheckTimeFormatV1(timeValue, timeFormat));
