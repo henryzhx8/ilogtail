@@ -104,7 +104,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
                 "contents" :
                 {
                     "content" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"}",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -114,7 +114,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
                 "contents" :
                 {
                     "content" : "{\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -136,7 +136,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
             {
                 "contents" :
                 {
-                    "log.file.offset": "0",
+                    "__file_offset__": "0",
                     "rawLog" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"}",
                     "time" : "07/Jul/2022:10:30:28",
                     "url" : "POST /PutData?Category=YunOsAccountOpLog HTTP/1.1"
@@ -148,11 +148,11 @@ void ProcessorParseJsonNativeUnittest::TestProcessJson() {
             {
                 "contents" :
                 {
+                    "__file_offset__": "0",
                     "address" : "{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"}",
                     "age":"25",
                     "courses":"[\"Math\",\"English\",\"Science\"]",
                     "is_student":"false",
-                    "log.file.offset":"0",
                     "name":"Mike",
                     "rawLog" : "{\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "scores":"{\"Math\":90,\"English\":85,\"Science\":95}"
@@ -187,7 +187,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonContent() {
                 "contents" :
                 {
                     "content" : "{\"content\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -209,12 +209,12 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonContent() {
             {
                 "contents" :
                 {
+                    "__file_offset__": "0",
                     "address" : "{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"}",
                     "age":"25",
                     "content":"content_test",
                     "courses":"[\"Math\",\"English\",\"Science\"]",
                     "is_student":"false",
-                    "log.file.offset":"0",
                     "name":"Mike",
                     "rawLog" : "{\"content\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
                     "scores":"{\"Math\":90,\"English\":85,\"Science\":95}"
@@ -249,7 +249,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonRaw() {
                 "contents" :
                 {
                     "content" : "{\"rawLog\":\"content_test\",\"name\":\"Mike\",\"age\":25,\"is_student\":false,\"address\":{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"},\"courses\":[\"Math\",\"English\",\"Science\"],\"scores\":{\"Math\":90,\"English\":85,\"Science\":95}}",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -271,11 +271,11 @@ void ProcessorParseJsonNativeUnittest::TestProcessJsonRaw() {
             {
                 "contents" :
                 {
+                    "__file_offset__": "0",
                     "address" : "{\"city\":\"Hangzhou\",\"postal_code\":\"100000\"}",
                     "age":"25",
                     "courses":"[\"Math\",\"English\",\"Science\"]",
                     "is_student":"false",
-                    "log.file.offset":"0",
                     "name":"Mike",
                     "rawLog" : "content_test",
                     "scores":"{\"Math\":90,\"English\":85,\"Science\":95}"
@@ -311,7 +311,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventKeepUnmatch() {
                 "contents" :
                 {
                     "content" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -352,7 +352,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventKeepUnmatch() {
             {
                 "contents" :
                 {
-                    "log.file.offset":"0",
+                    "__file_offset__": "0",
                     "rawLog" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\""
                 },
                 "timestamp" : 12345678901,
@@ -385,7 +385,7 @@ void ProcessorParseJsonNativeUnittest::TestProcessEventDiscardUnmatch() {
                 "contents" :
                 {
                     "content" : "{\"url\": \"POST /PutData?Category=YunOsAccountOpLog HTTP/1.1\",\"time\": \"07/Jul/2022:10:30:28\"",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,

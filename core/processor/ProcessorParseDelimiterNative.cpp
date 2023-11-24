@@ -259,14 +259,11 @@ bool ProcessorParseDelimiterNative::ProcessEvent(const StringView& logPath, Pipe
             }
         }
     }
-
-    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
-        if (!mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
-        }
-        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false);
-    } else if (mCommonParserOptions.ShouldAddEarseSourceLog(parseSuccess) && !mSourceKeyOverwritten) {
+    if (!parseSuccess || !mSourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
+    }
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false);
     }
     if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
         AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, buffer, sourceEvent, false);

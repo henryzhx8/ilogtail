@@ -61,7 +61,7 @@ void ProcessorFilterNativeUnittest::TestLogFilterRule() {
                 {
                     "key1" : "value1xxxxx",
                     "key2" : "value2xxxxx",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -72,7 +72,7 @@ void ProcessorFilterNativeUnittest::TestLogFilterRule() {
                 {
                     "key1" : "abcdeavalue1",
                     "key2" : "value2xxxxx",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -91,9 +91,9 @@ void ProcessorFilterNativeUnittest::TestLogFilterRule() {
             {
                 "contents" : 
                 {
+                    "__file_offset__": "0",
                     "key1" : "abcdeavalue1",
-                    "key2" : "value2xxxxx",
-                    "log.file.offset" : "0"
+                    "key2" : "value2xxxxx"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond" : 0,
@@ -113,7 +113,7 @@ void ProcessorFilterNativeUnittest::TestLogFilterRule() {
                 "contents" :
                 {
                     "key1" : "abcvalue1",
-                    "log.file.offset": "0"
+                    "__file_offset__": "0"
                 },
                 "timestampNanosecond" : 0,
                 "timestamp" : 12345678901,
@@ -168,9 +168,9 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" :
                     {
+                        "__file_offset__": "0",
                         "key1" : "value1xxxxx",
-                        "key2" : "value2xxxxx",
-                        "log.file.offset": "0"
+                        "key2" : "value2xxxxx"
                     },
                     "timestampNanosecond" : 0,
                     "timestamp" : 12345678901,
@@ -179,9 +179,9 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" :
                     {
+                        "__file_offset__": "0",
                         "key1" : "abcdeavalue1",
-                        "key2" : "value2xxxxx",
-                        "log.file.offset": "0"
+                        "key2" : "value2xxxxx"
                     },
                     "timestampNanosecond" : 0,
                     "timestamp" : 12345678901,
@@ -200,9 +200,9 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" : 
                     {
+                        "__file_offset__": "0",
                         "key1" : "abcdeavalue1",
-                        "key2" : "value2xxxxx",
-                        "log.file.offset" : "0"
+                        "key2" : "value2xxxxx"
                     },
                     "timestamp" : 12345678901,
                     "timestampNanosecond" : 0,
@@ -221,8 +221,8 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" :
                     {
-                        "key1" : "abcvalue1",
-                        "log.file.offset": "0"
+                        "__file_offset__": "0",
+                        "key1" : "abcvalue1"
                     },
                     "timestampNanosecond" : 0,
                     "timestamp" : 12345678901,
@@ -305,11 +305,11 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" :
                     {
+                        "__file_offset__": "0",
                         "a" : "100",
                         "b" : "xxx",
                         "c" : "192.168.1.1",
-                        "d" : "2008-08-08",
-                        "log.file.offset": "0"
+                        "d" : "2008-08-08"
                     },
                     "timestampNanosecond" : 0,
                     "timestamp" : 12345678901,
@@ -318,11 +318,11 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" :
                     {
+                        "__file_offset__": "0",
                         "a" : "100",
                         "b" : "xxx",
                         "c" : "888.168.1.1",
-                        "d" : "1999-1-1",
-                        "log.file.offset": "0"
+                        "d" : "1999-1-1"
                     },
                     "timestampNanosecond" : 0,
                     "timestamp" : 12345678901,
@@ -331,11 +331,11 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" :
                     {
+                        "__file_offset__": "0",
                         "a" : "aaa",
                         "b" : "xxx",
                         "c" : "8.8.8.8",
-                        "d" : "2222-22-22",
-                        "log.file.offset": "0"
+                        "d" : "2222-22-22"
                     },
                     "timestampNanosecond" : 0,
                     "timestamp" : 12345678901,
@@ -355,11 +355,11 @@ void ProcessorFilterNativeUnittest::TestBaseFilter() {
                 {
                     "contents" : 
                     {
+                        "__file_offset__": "0",
                         "a" : "100",
                         "b" : "xxx",
                         "c" : "888.168.1.1",
-                        "d" : "1999-1-1",
-                        "log.file.offset" : "0"
+                        "d" : "1999-1-1"
                     },
                     "timestamp" : 12345678901,
                     "timestampNanosecond" : 0,

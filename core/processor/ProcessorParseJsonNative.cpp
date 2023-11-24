@@ -78,13 +78,11 @@ bool ProcessorParseJsonNative::ProcessEvent(const StringView& logPath, PipelineE
     bool parseSuccess = true;
     parseSuccess = JsonLogLineParser(sourceEvent, logPath, e);
 
-    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess, mSourceKey)) {
-        if (!mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
-        }
-        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
-    } else if (mCommonParserOptions.ShouldAddEarseSourceLog(parseSuccess) && !mSourceKeyOverwritten) {
+    if (!parseSuccess || !mSourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
+    }
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(parseSuccess)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
     }
     if (mCommonParserOptions.ShouldAddUnmatchLog(parseSuccess)) {
         AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, rawContent, sourceEvent, false);

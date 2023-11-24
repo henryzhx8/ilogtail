@@ -33,42 +33,10 @@ struct CommonParserOptions {
     bool mCopingRawLog = false;
     const std::string UNMATCH_LOG_KEY = "__raw_log__";
 
-    bool ShouldAddUnmatchLog(bool parseSuccess) {
-        return !parseSuccess && mKeepingSourceWhenParseFail && mCopingRawLog;
-    }
-
+    bool ShouldAddUnmatchLog(bool parseSuccess);
     // Parsing successful and original logs are retained or parsing failed and original logs are retained.
-    bool ShouldAddRenamedSourceLog(bool parseSuccess, const std::string& sourceKey) {
-        return (((parseSuccess && mKeepingSourceWhenParseSucceed) || (!parseSuccess && mKeepingSourceWhenParseFail))
-                && sourceKey != mRenamedSourceKey);
-    }
-    // Parsing successful but original logs are not retained or parsing failed but original logs are not retained.
-    bool ShouldAddEarseSourceLog(bool parseSuccess) {
-        return (((parseSuccess && !mKeepingSourceWhenParseSucceed) || (!parseSuccess && !mKeepingSourceWhenParseFail)));
-    }
-
-    bool ShouldEraseEvent(bool parseSuccess, const LogEvent& sourceEvent) {
-        if (!parseSuccess && !mKeepingSourceWhenParseFail) {
-            const auto& contents = sourceEvent.GetContents();
-            if (contents.empty()) {
-                return true;
-            }
-#ifdef APSARA_UNIT_TEST_MAIN
-            // "__file_offset__"  or "log.file.offset"
-            if (contents.size() == 1
-                && (contents.begin()->first == LOG_RESERVED_KEY_FILE_OFFSET
-                    || contents.begin()->first == EVENT_GROUP_META_LOG_FILE_OFFSET)) {
-                return true;
-            }
-#else
-            // "__file_offset__"
-            if (contents.size() == 1 && (contents.begin()->first == LOG_RESERVED_KEY_FILE_OFFSET)) {
-                return true;
-            }
-#endif
-        }
-        return false;
-    }
+    bool ShouldAddRenamedSourceLog(bool parseSuccess);
+    bool ShouldEraseEvent(bool parseSuccess, const LogEvent& sourceEvent);
 };
 
 } // namespace logtail

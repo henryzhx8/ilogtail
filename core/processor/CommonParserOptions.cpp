@@ -37,4 +37,25 @@ bool CommonParserOptions::Init(const Json::Value& config, const PipelineContext&
     }
     return true;
 }
+bool CommonParserOptions::ShouldAddUnmatchLog(bool parseSuccess) {
+    return !parseSuccess && mKeepingSourceWhenParseFail && mCopingRawLog;
+}
+
+// Parsing successful and original logs are retained or parsing failed and original logs are retained.
+bool CommonParserOptions::ShouldAddRenamedSourceLog(bool parseSuccess) {
+    return (((parseSuccess && mKeepingSourceWhenParseSucceed) || (!parseSuccess && mKeepingSourceWhenParseFail)));
+}
+bool CommonParserOptions::ShouldEraseEvent(bool parseSuccess, const LogEvent& sourceEvent) {
+    if (!parseSuccess && !mKeepingSourceWhenParseFail) {
+        const auto& contents = sourceEvent.GetContents();
+        if (contents.empty()) {
+            return true;
+        }
+        // "__file_offset__"
+        if (contents.size() == 1 && (contents.begin()->first == LOG_RESERVED_KEY_FILE_OFFSET)) {
+            return true;
+        }
+    }
+    return false;
+}
 } // namespace logtail

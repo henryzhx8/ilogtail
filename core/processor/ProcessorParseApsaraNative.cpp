@@ -124,13 +124,9 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
                                           GetContext().GetRegion());
         mProcParseErrorTotal->Add(1);
         ++(*mParseFailures);
-        if (mCommonParserOptions.ShouldAddRenamedSourceLog(false, mSourceKey)) {
-            if (!mSourceKeyOverwritten) {
-                sourceEvent.DelContent(mSourceKey);
-            }
-            AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
-        } else if (mCommonParserOptions.ShouldAddEarseSourceLog(false) && !mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
+        sourceEvent.DelContent(mSourceKey);
+        if (mCommonParserOptions.ShouldAddRenamedSourceLog(false)) {
+            AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false);
         }
         if (mCommonParserOptions.ShouldAddUnmatchLog(false)) {
             AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, rawContent, sourceEvent, false);
@@ -201,13 +197,11 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%lld", logTime_in_micro));
 #endif
     AddLog("microtime", StringView(sb.data, sb.size), sourceEvent);
-    if (mCommonParserOptions.ShouldAddRenamedSourceLog(true, mSourceKey)) {
-        if (!mSourceKeyOverwritten) {
-            sourceEvent.DelContent(mSourceKey);
-        }
-        AddLog(mCommonParserOptions.mRenamedSourceKey, rawContent, sourceEvent, false);
-    } else if (mCommonParserOptions.ShouldAddEarseSourceLog(true) && !mSourceKeyOverwritten) {
+    if (!mSourceKeyOverwritten) {
         sourceEvent.DelContent(mSourceKey);
+    }
+    if (mCommonParserOptions.ShouldAddRenamedSourceLog(true)) {
+        AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false);
     }
     return true;
 }
