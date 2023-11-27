@@ -25,11 +25,6 @@ namespace logtail {
 class ProcessorParseApsaraNative : public Processor {
 public:
     static const std::string sName;
-    static const std::string SLS_KEY_LEVEL;
-    static const std::string SLS_KEY_THREAD;
-    static const std::string SLS_KEY_FILE;
-    static const std::string SLS_KEY_LINE;
-    static const int32_t MAX_BASE_FIELD_NUM;
 
     // Source field name.
     std::string mSourceKey;

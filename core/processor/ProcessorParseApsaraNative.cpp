@@ -28,11 +28,11 @@
 
 namespace logtail {
 const std::string ProcessorParseApsaraNative::sName = "processor_parse_apsara_native";
-const std::string ProcessorParseApsaraNative::SLS_KEY_LEVEL = "__LEVEL__";
-const std::string ProcessorParseApsaraNative::SLS_KEY_THREAD = "__THREAD__";
-const std::string ProcessorParseApsaraNative::SLS_KEY_FILE = "__FILE__";
-const std::string ProcessorParseApsaraNative::SLS_KEY_LINE = "__LINE__";
-const int32_t ProcessorParseApsaraNative::MAX_BASE_FIELD_NUM = 10;
+const std::string SLS_KEY_LEVEL = "__LEVEL__";
+const std::string SLS_KEY_THREAD = "__THREAD__";
+const std::string SLS_KEY_FILE = "__FILE__";
+const std::string SLS_KEY_LINE = "__LINE__";
+const int32_t MAX_BASE_FIELD_NUM = 10;
 
 bool ProcessorParseApsaraNative::Init(const Json::Value& config) {
     std::string errorMsg;
@@ -268,7 +268,7 @@ static int32_t FindBaseFields(StringView& buffer, int32_t beginIndexArray[], int
                 endIndexArray[baseFieldNum] = i;
                 baseFieldNum++;
             }
-            if (baseFieldNum >= ProcessorParseApsaraNative::MAX_BASE_FIELD_NUM) {
+            if (baseFieldNum >= MAX_BASE_FIELD_NUM) {
                 break;
             }
             if (buffer[i + 1] == '\t' && buffer[i + 2] != '[') {

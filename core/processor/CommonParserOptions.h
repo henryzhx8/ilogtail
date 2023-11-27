@@ -21,18 +21,16 @@
 
 #include "common/Constants.h"
 #include "pipeline/PipelineContext.h"
-#ifdef APSARA_UNIT_TEST_MAIN
-#include "models/PipelineEventGroup.h"
-#endif
+
 namespace logtail {
 struct CommonParserOptions {
-    bool Init(const Json::Value& config, const PipelineContext& ctx, const std::string& pluginName);
     bool mKeepingSourceWhenParseFail = false;
     bool mKeepingSourceWhenParseSucceed = false;
     std::string mRenamedSourceKey;
     bool mCopingRawLog = false;
     const std::string UNMATCH_LOG_KEY = "__raw_log__";
 
+    bool Init(const Json::Value& config, const PipelineContext& ctx, const std::string& pluginName);
     bool ShouldAddUnmatchLog(bool parseSuccess);
     // Parsing successful and original logs are retained or parsing failed and original logs are retained.
     bool ShouldAddRenamedSourceLog(bool parseSuccess);

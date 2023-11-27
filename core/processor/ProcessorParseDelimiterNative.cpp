@@ -41,7 +41,7 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     // Compatible with old logic.
     if (mSeparator == "\\t")
         mSeparator = '\t';
-    std::string quoteStr = "\"";
+    std::string quoteStr;
     bool res = GetOptionalStringParam(config, "Quote", quoteStr, errorMsg);
     if (mSeparator.size() == 1) {
         if (!res) {
@@ -52,9 +52,17 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
             errorMsg = "param Quote is not a single char";
             PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
         }
-    } else if (mSeparator.size() > 1 && res) {
+    } else if (mSeparator.size() > 1 && quoteStr.size() > 0) {
         errorMsg = "param Quote is not allowed when Separator length is more than 1";
         PARAM_WARNING_IGNORE(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+    }
+    if (!mSeparator.empty())
+        mSeparatorChar = mSeparator.data()[0];
+
+    for (auto key : mKeys) {
+        if (key == mSourceKey) {
+            mSourceKeyOverwritten = true;
+        }
     }
 
     if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {
@@ -84,18 +92,6 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
 
-    if (!mSeparator.empty())
-        mSeparatorChar = mSeparator.data()[0];
-    else {
-        // This should never happened.
-        mSeparatorChar = '\t';
-    }
-
-    for (auto key : mKeys) {
-        if (key.compare(mSourceKey) == 0) {
-            mSourceKeyOverwritten = true;
-        }
-    }
 
     mAutoExtend = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND;
     mExtractPartialFields = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::DISCARD;
