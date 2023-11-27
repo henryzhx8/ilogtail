@@ -56,27 +56,8 @@ public:
     virtual ~BinaryFilterOperatorNode(){};
 
 public:
-    virtual bool Match(const sls_logs::Log& log, const LogGroupContext& context) {
-        if (BOOST_LIKELY(left && right)) {
-            if (op == AND_OPERATOR) {
-                return left->Match(log, context) && right->Match(log, context);
-            } else if (op == OR_OPERATOR) {
-                return left->Match(log, context) || right->Match(log, context);
-            }
-        }
-        return false;
-    }
-
-    virtual bool Match(const LogContents& contents, const PipelineContext& mContext) {
-        if (BOOST_LIKELY(left && right)) {
-            if (op == AND_OPERATOR) {
-                return left->Match(contents, mContext) && right->Match(contents, mContext);
-            } else if (op == OR_OPERATOR) {
-                return left->Match(contents, mContext) || right->Match(contents, mContext);
-            }
-        }
-        return false;
-    }
+    virtual bool Match(const sls_logs::Log& log, const LogGroupContext& context);
+    virtual bool Match(const LogContents& contents, const PipelineContext& mContext);
 
 private:
     FilterOperator op;
@@ -93,46 +74,9 @@ public:
     virtual ~RegexFilterValueNode() {}
 
 public:
-    virtual bool Match(const sls_logs::Log& log, const LogGroupContext& context) {
-        for (int i = 0; i < log.contents_size(); ++i) {
-            const sls_logs::Log_Content& content = log.contents(i);
-            if (content.key() != key) {
-                continue;
-            }
+    virtual bool Match(const sls_logs::Log& log, const LogGroupContext& context);
 
-            std::string exception;
-            bool result = BoostRegexMatch(content.value().c_str(), content.value().size(), reg, exception);
-            if (!result && !exception.empty() && AppConfig::GetInstance()->IsLogParseAlarmValid()) {
-                LOG_ERROR(sLogger, ("regex_match in Filter fail", exception));
-                if (LogtailAlarm::GetInstance()->IsLowLevelAlarmValid()) {
-                    context.SendAlarm(REGEX_MATCH_ALARM, "regex_match in Filter fail:" + exception);
-                }
-            }
-            return result;
-        }
-        return false;
-    }
-
-    virtual bool Match(const LogContents& contents, const PipelineContext& mContext) {
-        const auto& content = contents.find(key);
-        if (content == contents.end()) {
-            return false;
-        }
-
-        std::string exception;
-        bool result = BoostRegexMatch(content->second.data(), content->second.size(), reg, exception);
-        if (!result && !exception.empty() && AppConfig::GetInstance()->IsLogParseAlarmValid()) {
-            LOG_ERROR(mContext.GetLogger(), ("regex_match in Filter fail", exception));
-            if (mContext.GetAlarm().IsLowLevelAlarmValid()) {
-                mContext.GetAlarm().SendAlarm(REGEX_MATCH_ALARM,
-                                              "regex_match in Filter fail:" + exception,
-                                              mContext.GetProjectName(),
-                                              mContext.GetLogstoreName(),
-                                              mContext.GetRegion());
-            }
-        }
-        return result;
-    }
+    virtual bool Match(const LogContents& contents, const PipelineContext& mContext);
 
 private:
     std::string key;
@@ -148,19 +92,9 @@ public:
     virtual ~UnaryFilterOperatorNode(){};
 
 public:
-    virtual bool Match(const sls_logs::Log& log, const LogGroupContext& context) {
-        if (BOOST_LIKELY(child.get() != NULL)) {
-            return !child->Match(log, context);
-        }
-        return false;
-    }
+    virtual bool Match(const sls_logs::Log& log, const LogGroupContext& context);
 
-    virtual bool Match(const LogContents& contents, const PipelineContext& mContext) {
-        if (BOOST_LIKELY(child.get() != NULL)) {
-            return !child->Match(contents, mContext);
-        }
-        return false;
-    }
+    virtual bool Match(const LogContents& contents, const PipelineContext& mContext);
 
 private:
     FilterOperator op;

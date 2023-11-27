@@ -24,7 +24,7 @@
 
 namespace logtail {
 const std::string ProcessorParseTimestampNative::sName = "processor_parse_timestamp_native";
-const std::string ProcessorParseTimestampNative::PRECISE_TIMESTAMP_DEFAULT_KEY = "precise_timestamp";
+// const std::string ProcessorParseTimestampNative::PRECISE_TIMESTAMP_DEFAULT_KEY = "precise_timestamp";
 
 bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     std::string errorMsg;

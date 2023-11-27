@@ -98,8 +98,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     }
     mSourceKeyOverwritten = false;
     StringView buffer = sourceEvent.GetContent(mSourceKey);
-    auto rawContent = sourceEvent.GetContent(mSourceKey);
-    mProcParseInSizeBytes->Add(buffer.size());
+        mProcParseInSizeBytes->Add(buffer.size());
     int64_t logTime_in_micro = 0;
     time_t logTime = ApsaraEasyReadLogTimeParser(buffer, timeStrCache, lastLogTime, logTime_in_micro);
     if (logTime <= 0) // this case will handle empty apsara log line
@@ -129,7 +128,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
             AddLog(mCommonParserOptions.mRenamedSourceKey, buffer, sourceEvent, false);
         }
         if (mCommonParserOptions.ShouldAddUnmatchLog(false)) {
-            AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, rawContent, sourceEvent, false);
+            AddLog(mCommonParserOptions.UNMATCH_LOG_KEY, buffer, sourceEvent, false);
         }
         if (mCommonParserOptions.ShouldEraseEvent(false, sourceEvent)) {
             mProcDiscardRecordsTotal->Add(1);
@@ -187,9 +186,9 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
         } while (buffer.data()[index]);
     }
     // TODO: deprecated
-    if (mAdjustingMicroTimezone) {
-        logTime_in_micro = (int64_t)logTime_in_micro - (int64_t)mLogTimeZoneOffsetSecond * (int64_t)1000000;
-    }
+    // if (mAdjustingMicroTimezone) {
+    //     logTime_in_micro = (int64_t)logTime_in_micro - (int64_t)mLogTimeZoneOffsetSecond * (int64_t)1000000;
+    // }
     StringBuffer sb = sourceEvent.GetSourceBuffer()->AllocateStringBuffer(20);
 #if defined(__linux__)
     sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%ld", logTime_in_micro));

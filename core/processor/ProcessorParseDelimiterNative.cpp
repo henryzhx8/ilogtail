@@ -44,7 +44,7 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     std::string quoteStr;
     bool res = GetOptionalStringParam(config, "Quote", quoteStr, errorMsg);
     if (mSeparator.size() == 1) {
-        if (!res) {
+        if (!res || quoteStr.size() == 0) {
             PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mQuote, sName, mContext->GetConfigName());
         } else if (quoteStr.size() == 1) {
             mQuote = quoteStr[0];
@@ -59,15 +59,16 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
     if (!mSeparator.empty())
         mSeparatorChar = mSeparator.data()[0];
 
+
+    if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {
+        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+    }
     for (auto key : mKeys) {
         if (key == mSourceKey) {
             mSourceKeyOverwritten = true;
         }
     }
 
-    if (!GetMandatoryListParam(config, "Keys", mKeys, errorMsg)) {
-        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
-    }
     if (!GetOptionalBoolParam(config, "AllowingShortenedFields", mAllowingShortenedFields, errorMsg)) {
         PARAM_WARNING_DEFAULT(
             mContext->GetLogger(), errorMsg, mAllowingShortenedFields, sName, mContext->GetConfigName());

@@ -67,11 +67,6 @@ bool ProcessorDesensitizeNative::Init(const Json::Value& config) {
     if (!mRegex->ok()) {
         errorMsg = mRegex->error();
         errorMsg += std::string(", regex : ") + regexStr;
-        mContext->GetAlarm().SendAlarm(CATEGORY_CONFIG_ALARM,
-                                       std::string("The sensitive key regex is invalid, ") + errorMsg,
-                                       GetContext().GetProjectName(),
-                                       GetContext().GetLogstoreName(),
-                                       GetContext().GetRegion());
         PARAM_ERROR_RETURN(mContext->GetLogger(),
                            "The sensitive regex is invalid, error:" + errorMsg,
                            sName,

@@ -30,7 +30,6 @@ public:
     std::string mSourceKey;
     // The time zone to which the log time belongs. The format is GMT+HH:MM (Eastern Zone) or GMT-HH:MM (Western Zone).
     std::string mTimezone = "";
-    bool mAdjustingMicroTimezone = true;
 
     CommonParserOptions mCommonParserOptions;
 

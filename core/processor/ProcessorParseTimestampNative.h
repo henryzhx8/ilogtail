@@ -23,7 +23,7 @@ namespace logtail {
 class ProcessorParseTimestampNative : public Processor {
 public:
     static const std::string sName;
-    static const std::string PRECISE_TIMESTAMP_DEFAULT_KEY;
+    // static const std::string PRECISE_TIMESTAMP_DEFAULT_KEY;
     // Source field name.
     std::string mSourceKey;
     // Log time format. %Y/%m/%d %H:%M:%S

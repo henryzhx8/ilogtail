@@ -29,21 +29,25 @@ const std::string ProcessorFilterNative::sName = "processor_filter_regex_native"
 bool ProcessorFilterNative::Init(const Json::Value& config) {
     std::string errorMsg;
 
-    if (GetOptionalMapParam(config, "Include", mInclude, errorMsg) && !mInclude.empty()) {
-        mFilterMode = Mode::RULE_MODE;
-        std::vector<std::string> keys;
-        std::vector<boost::regex> regs;
-        for (auto& include : mInclude) {
-            keys.emplace_back(include.first);
-            if (!IsRegexValid(include.second)) {
-                errorMsg = "invalid regex format: " + include.second;
-                PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+    if (GetOptionalMapParam(config, "Include", mInclude, errorMsg)) {
+        if (!mInclude.empty()) {
+            mFilterMode = Mode::RULE_MODE;
+            std::vector<std::string> keys;
+            std::vector<boost::regex> regs;
+            for (auto& include : mInclude) {
+                keys.emplace_back(include.first);
+                if (!IsRegexValid(include.second)) {
+                    errorMsg = "invalid regex format: " + include.second;
+                    PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
+                }
+                regs.emplace_back(boost::regex(include.second));
             }
-            regs.emplace_back(boost::regex(include.second));
+            mFilterRule = std::make_shared<LogFilterRule>();
+            mFilterRule.get()->FilterKeys = keys;
+            mFilterRule.get()->FilterRegs = regs;
         }
-        mFilterRule = std::make_shared<LogFilterRule>();
-        mFilterRule.get()->FilterKeys = keys;
-        mFilterRule.get()->FilterRegs = regs;
+    } else {
+        PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
 
     if (mFilterMode == Mode::BYPASS_MODE) {
@@ -367,4 +371,85 @@ bool GetNodeFuncType(const std::string& type, FilterNodeFunctionType& func) {
     return true;
 }
 
+
+bool BinaryFilterOperatorNode::Match(const sls_logs::Log& log, const LogGroupContext& context) {
+    if (BOOST_LIKELY(left && right)) {
+        if (op == AND_OPERATOR) {
+            return left->Match(log, context) && right->Match(log, context);
+        } else if (op == OR_OPERATOR) {
+            return left->Match(log, context) || right->Match(log, context);
+        }
+    }
+    return false;
+}
+
+bool BinaryFilterOperatorNode::Match(const LogContents& contents, const PipelineContext& mContext) {
+    if (BOOST_LIKELY(left && right)) {
+        if (op == AND_OPERATOR) {
+            return left->Match(contents, mContext) && right->Match(contents, mContext);
+        } else if (op == OR_OPERATOR) {
+            return left->Match(contents, mContext) || right->Match(contents, mContext);
+        }
+    }
+    return false;
+}
+
+
+bool RegexFilterValueNode::Match(const sls_logs::Log& log, const LogGroupContext& context) {
+    for (int i = 0; i < log.contents_size(); ++i) {
+        const sls_logs::Log_Content& content = log.contents(i);
+        if (content.key() != key) {
+            continue;
+        }
+
+        std::string exception;
+        bool result = BoostRegexMatch(content.value().c_str(), content.value().size(), reg, exception);
+        if (!result && !exception.empty() && AppConfig::GetInstance()->IsLogParseAlarmValid()) {
+            LOG_ERROR(sLogger, ("regex_match in Filter fail", exception));
+            if (LogtailAlarm::GetInstance()->IsLowLevelAlarmValid()) {
+                context.SendAlarm(REGEX_MATCH_ALARM, "regex_match in Filter fail:" + exception);
+            }
+        }
+        return result;
+    }
+    return false;
+}
+
+
+bool RegexFilterValueNode::Match(const LogContents& contents, const PipelineContext& mContext) {
+    const auto& content = contents.find(key);
+    if (content == contents.end()) {
+        return false;
+    }
+
+    std::string exception;
+    bool result = BoostRegexMatch(content->second.data(), content->second.size(), reg, exception);
+    if (!result && !exception.empty() && AppConfig::GetInstance()->IsLogParseAlarmValid()) {
+        LOG_ERROR(mContext.GetLogger(), ("regex_match in Filter fail", exception));
+        if (mContext.GetAlarm().IsLowLevelAlarmValid()) {
+            mContext.GetAlarm().SendAlarm(REGEX_MATCH_ALARM,
+                                          "regex_match in Filter fail:" + exception,
+                                          mContext.GetProjectName(),
+                                          mContext.GetLogstoreName(),
+                                          mContext.GetRegion());
+        }
+    }
+    return result;
+}
+
+
+bool UnaryFilterOperatorNode::Match(const sls_logs::Log& log, const LogGroupContext& context) {
+    if (BOOST_LIKELY(child.get() != NULL)) {
+        return !child->Match(log, context);
+    }
+    return false;
+}
+
+
+bool UnaryFilterOperatorNode::Match(const LogContents& contents, const PipelineContext& mContext) {
+    if (BOOST_LIKELY(child.get() != NULL)) {
+        return !child->Match(contents, mContext);
+    }
+    return false;
+}
 } // namespace logtail
