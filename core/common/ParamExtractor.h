@@ -198,6 +198,4 @@ bool GetMandatoryListParam(const Json::Value& config,
 
 bool IsRegexValid(const std::string& regStr);
 
-bool IsExist(const Json::Value& config, const std::string& key);
-
 } // namespace logtail

@@ -527,8 +527,6 @@ void ProcessorParseTimestampNativeUnittest::TestProcessEventPreciseTimestampLega
     config["SourceKey"] = "time";
     config["SourceFormat"] = "%Y-%m-%d %H:%M:%S.%f";
     config["SourceTimezone"] = "GMT+00:00";
-    config["PreciseTimestampKey"] = "precise_timestamp";
-    config["PreciseTimestampUnit"] = "ms";
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
     auto logEvent = PipelineEventPtr(LogEvent::CreateEvent(sourceBuffer));
@@ -556,7 +554,6 @@ void ProcessorParseTimestampNativeUnittest::TestProcessEventPreciseTimestampLega
     expectJsonSs << R"({
         "contents" :
         {
-            "precise_timestamp": "1484147107012",
             "time" : "2017-1-11 15:05:07.012"
         },
         "timestamp" : )"
@@ -588,32 +585,29 @@ void ProcessorParseLogTimeUnittest::TestParseLogTime() {
         std::string fmtStr;
         time_t exceptedLogTime;
         long exceptedLogTimeNanosecond;
-        uint64_t exceptedPreciseTimestamp;
     };
 
     std::vector<Case> inputTimes = {
-        {"2017-1-11 15:05:07.012", "%Y-%m-%d %H:%M:%S.%f", 1484147107, 12000000, 1484147107012},
-        {"2017-1-11 15:05:07.012", "%Y-%m-%d %H:%M:%S.%f", 1484147107, 12000000, 1484147107012},
-        {"[2017-1-11 15:05:07.0123]", "[%Y-%m-%d %H:%M:%S.%f", 1484147107, 12300000, 1484147107012},
-        {"11 Jan 17 15:05 MST", "%d %b %y %H:%M", 1484147100, 0, 1484147100000},
-        {"11 Jan 17 15:05 -0700", "%d %b %y %H:%M", 1484147100, 0, 1484147100000},
-        {"Tuesday, 11-Jan-17 15:05:07.0123 MST", "%A, %d-%b-%y %H:%M:%S.%f", 1484147107, 12300000, 1484147107012},
-        {"Tuesday, 11 Jan 2017 15:05:07 MST", "%A, %d %b %Y %H:%M:%S", 1484147107, 0, 1484147107000},
-        {"2017-01-11T15:05:07Z08:00", "%Y-%m-%dT%H:%M:%S", 1484147107, 0, 1484147107000},
-        {"2017-01-11T15:05:07.012999999Z07:00", "%Y-%m-%dT%H:%M:%S.%f", 1484147107, 12999999, 1484147107012},
-        {"1484147107", "%s", 1484147107, 0, 1484147107000},
-        {"1484147107123", "%s", 1484147107, 123000000, 1484147107123},
-        {"15:05:07.012 2017-1-11", "%H:%M:%S.%f %Y-%m-%d", 1484147107, 12000000, 1484147107012},
-        {"2017-1-11 15:05:07.012 +0700 (UTC)", "%Y-%m-%d %H:%M:%S.%f %z (%Z)", 1484147107, 12000000, 1484147107012},
+        {"2017-1-11 15:05:07.012", "%Y-%m-%d %H:%M:%S.%f", 1484147107, 12000000},
+        {"2017-1-11 15:05:07.012", "%Y-%m-%d %H:%M:%S.%f", 1484147107, 12000000},
+        {"[2017-1-11 15:05:07.0123]", "[%Y-%m-%d %H:%M:%S.%f", 1484147107, 12300000},
+        {"11 Jan 17 15:05 MST", "%d %b %y %H:%M", 1484147100, 0},
+        {"11 Jan 17 15:05 -0700", "%d %b %y %H:%M", 1484147100, 0},
+        {"Tuesday, 11-Jan-17 15:05:07.0123 MST", "%A, %d-%b-%y %H:%M:%S.%f", 1484147107, 12300000},
+        {"Tuesday, 11 Jan 2017 15:05:07 MST", "%A, %d %b %Y %H:%M:%S", 1484147107, 0},
+        {"2017-01-11T15:05:07Z08:00", "%Y-%m-%dT%H:%M:%S", 1484147107, 0},
+        {"2017-01-11T15:05:07.012999999Z07:00", "%Y-%m-%dT%H:%M:%S.%f", 1484147107, 12999999},
+        {"1484147107", "%s", 1484147107, 0},
+        {"1484147107123", "%s", 1484147107, 123000000},
+        {"15:05:07.012 2017-1-11", "%H:%M:%S.%f %Y-%m-%d", 1484147107, 12000000},
+        {"2017-1-11 15:05:07.012 +0700 (UTC)", "%Y-%m-%d %H:%M:%S.%f %z (%Z)", 1484147107, 12000000},
         // Compatibility Test
-        {"2017-1-11 15:05:07.012", "%Y-%m-%d %H:%M:%S", 1484147107, 0, 1484147107012},
+        {"2017-1-11 15:05:07.012", "%Y-%m-%d %H:%M:%S", 1484147107, 0},
     };
     // make config
     Json::Value config;
     config["SourceKey"] = "time";
     config["SourceTimezone"] = "GMT+00:00";
-    config["PreciseTimestampUnit"] = "ms";
-    config["PreciseTimestampKey"] = "";
     for (size_t i = 0; i < inputTimes.size(); ++i) {
         auto& c = inputTimes[i];
         config["SourceFormat"] = c.fmtStr;
@@ -630,7 +624,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTime() {
         EXPECT_EQ(ret, true) << "failed: " + c.inputTimeStr;
         EXPECT_EQ(outTime.tv_sec, c.exceptedLogTime) << "failed: " + c.inputTimeStr;
         EXPECT_EQ(outTime.tv_nsec, c.exceptedLogTimeNanosecond) << "failed: " + c.inputTimeStr;
-        EXPECT_EQ(preciseTimestamp, c.exceptedPreciseTimestamp) << "failed: " + c.inputTimeStr;
     }
 }
 
@@ -639,7 +632,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
         std::string inputTimeStr;
         time_t exceptedLogTime;
         long exceptedLogTimeNanosecond;
-        uint64_t exceptedPreciseTimestamp;
 
         Case(std::string _inputTimeStr,
              time_t _exceptedLogTime,
@@ -647,15 +639,12 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
              uint64_t _exceptedPreciseTimestamp)
             : inputTimeStr(_inputTimeStr),
               exceptedLogTime(_exceptedLogTime),
-              exceptedLogTimeNanosecond(_exceptedLogTimeNanosecond),
-              exceptedPreciseTimestamp(_exceptedPreciseTimestamp) {}
+              exceptedLogTimeNanosecond(_exceptedLogTimeNanosecond) {}
     };
     // make config
     Json::Value config;
     config["SourceKey"] = "time";
     config["SourceTimezone"] = "GMT+00:00";
-    config["PreciseTimestampKey"] = "";
-    config["PreciseTimestampUnit"] = "us";
     { // case: second
         config["SourceFormat"] = "%Y-%m-%d %H:%M:%S";
         // run function
@@ -685,7 +674,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
     { // case: nanosecond
@@ -718,7 +706,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
     { // case: timestamp second
@@ -749,7 +736,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
     { // case: timestamp nanosecond
@@ -782,7 +768,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
     { // case: nanosecond in the middle
@@ -815,7 +800,6 @@ void ProcessorParseLogTimeUnittest::TestParseLogTimeSecondCache() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
 }
@@ -825,7 +809,6 @@ void ProcessorParseLogTimeUnittest::TestAdjustTimeZone() {
         std::string inputTimeStr;
         time_t exceptedLogTime;
         long exceptedLogTimeNanosecond;
-        uint64_t exceptedPreciseTimestamp;
 
         Case(std::string _inputTimeStr,
              time_t _exceptedLogTime,
@@ -833,14 +816,11 @@ void ProcessorParseLogTimeUnittest::TestAdjustTimeZone() {
              uint64_t _exceptedPreciseTimestamp)
             : inputTimeStr(_inputTimeStr),
               exceptedLogTime(_exceptedLogTime),
-              exceptedLogTimeNanosecond(_exceptedLogTimeNanosecond),
-              exceptedPreciseTimestamp(_exceptedPreciseTimestamp) {}
+              exceptedLogTimeNanosecond(_exceptedLogTimeNanosecond) {}
     };
     // make config
     Json::Value config;
     config["SourceKey"] = "time";
-    config["PreciseTimestampKey"] = "";
-    config["PreciseTimestampUnit"] = "us";
     { // case: UTC
         config["SourceTimezone"] = "GMT+00:00";
         config["SourceFormat"] = "%Y-%m-%d %H:%M:%S.%f";
@@ -872,7 +852,6 @@ void ProcessorParseLogTimeUnittest::TestAdjustTimeZone() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
     { // case: +7
@@ -906,7 +885,6 @@ void ProcessorParseLogTimeUnittest::TestAdjustTimeZone() {
             APSARA_TEST_EQUAL(ret, true);
             APSARA_TEST_EQUAL(outTime.tv_sec, c.exceptedLogTime);
             APSARA_TEST_EQUAL(outTime.tv_nsec, c.exceptedLogTimeNanosecond);
-            APSARA_TEST_EQUAL(preciseTimestamp, c.exceptedPreciseTimestamp);
         }
     }
 }
