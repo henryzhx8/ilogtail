@@ -165,7 +165,7 @@ bool ProcessorParseDelimiterNative::ProcessEvent(const StringView& logPath, Pipe
             columnValues.reserve(reserveSize);
             parseSuccess = mDelimiterModeFsmParserPtr->ParseDelimiterLine(buffer, begIdx, endIdx, columnValues);
             // handle auto extend
-            if (!mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND
+            if (!(mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND)
                 && columnValues.size() > mKeys.size()) {
                 int requiredLen = 0;
                 for (size_t i = mKeys.size(); i < columnValues.size(); ++i) {
@@ -298,7 +298,7 @@ bool ProcessorParseDelimiterNative::SplitString(
         if (pos2 == (size_t)endIdx)
             return true;
         pos = pos2 + d_size;
-        if (colLens.size() >= mKeys.size() && !mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND) {
+        if (colLens.size() >= mKeys.size() && !(mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND)) {
             colBegIdxs.push_back(pos2);
             colLens.push_back(endIdx - pos2);
             return true;
