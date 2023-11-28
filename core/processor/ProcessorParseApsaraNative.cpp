@@ -43,16 +43,14 @@ bool ProcessorParseApsaraNative::Init(const Json::Value& config) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mTimezone, sName, mContext->GetConfigName());
     }
 
+    if (mTimezone != "" && !ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mTimezone, errorMsg, false)) {
+        PARAM_WARNING_DEFAULT(
+            mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
+    }
+
     mCommonParserOptions.Init(config, *mContext, sName);
     if (mCommonParserOptions.mRenamedSourceKey.empty()) {
         mCommonParserOptions.mRenamedSourceKey = mSourceKey;
-    }
-
-    if (mTimezone != "") {
-        if (!ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mTimezone, errorMsg, false)) {
-            PARAM_WARNING_DEFAULT(
-                mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
-        };
     }
 
     mLogGroupSize = &(GetContext().GetProcessProfile().logGroupSize);
@@ -98,7 +96,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
     }
     mSourceKeyOverwritten = false;
     StringView buffer = sourceEvent.GetContent(mSourceKey);
-        mProcParseInSizeBytes->Add(buffer.size());
+    mProcParseInSizeBytes->Add(buffer.size());
     int64_t logTime_in_micro = 0;
     time_t logTime = ApsaraEasyReadLogTimeParser(buffer, timeStrCache, lastLogTime, logTime_in_micro);
     if (logTime <= 0) // this case will handle empty apsara log line

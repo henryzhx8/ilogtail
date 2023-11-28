@@ -93,8 +93,6 @@ bool ProcessorParseDelimiterNative::Init(const Json::Value& config) {
         mCommonParserOptions.mRenamedSourceKey = mSourceKey;
     }
 
-
-    mAutoExtend = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND;
     mExtractPartialFields = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::DISCARD;
 
     mDelimiterModeFsmParserPtr = new DelimiterModeFsmParser(mQuote, mSeparatorChar);
@@ -154,7 +152,8 @@ bool ProcessorParseDelimiterNative::ProcessEvent(const StringView& logPath, Pipe
     }
     if (begIdx >= endIdx)
         return true;
-    size_t reserveSize = mAutoExtend ? (mKeys.size() + 10) : (mKeys.size() + 1);
+    size_t reserveSize
+        = mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND ? (mKeys.size() + 10) : (mKeys.size() + 1);
     std::vector<StringView> columnValues;
     std::vector<size_t> colBegIdxs;
     std::vector<size_t> colLens;
@@ -166,7 +165,8 @@ bool ProcessorParseDelimiterNative::ProcessEvent(const StringView& logPath, Pipe
             columnValues.reserve(reserveSize);
             parseSuccess = mDelimiterModeFsmParserPtr->ParseDelimiterLine(buffer, begIdx, endIdx, columnValues);
             // handle auto extend
-            if (!mAutoExtend && columnValues.size() > mKeys.size()) {
+            if (!mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND
+                && columnValues.size() > mKeys.size()) {
                 int requiredLen = 0;
                 for (size_t i = mKeys.size(); i < columnValues.size(); ++i) {
                     requiredLen += 1 + columnValues[i].size();
@@ -298,7 +298,7 @@ bool ProcessorParseDelimiterNative::SplitString(
         if (pos2 == (size_t)endIdx)
             return true;
         pos = pos2 + d_size;
-        if (colLens.size() >= mKeys.size() && !mAutoExtend) {
+        if (colLens.size() >= mKeys.size() && !mOverflowedFieldsTreatment == OverflowedFieldsTreatment::EXTEND) {
             colBegIdxs.push_back(pos2);
             colLens.push_back(endIdx - pos2);
             return true;

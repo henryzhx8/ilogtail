@@ -31,12 +31,20 @@ bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     if (!GetMandatoryStringParam(config, "SourceKey", mSourceKey, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
+
     if (!GetMandatoryStringParam(config, "SourceFormat", mSourceFormat, errorMsg)) {
         PARAM_ERROR_RETURN(mContext->GetLogger(), errorMsg, sName, mContext->GetConfigName());
     }
+
     if (!GetOptionalStringParam(config, "SourceTimezone", mSourceTimezone, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSourceTimezone, sName, mContext->GetConfigName());
     }
+    if (mSourceTimezone != ""
+        && !ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mSourceTimezone, errorMsg, true)) {
+        PARAM_WARNING_DEFAULT(
+            mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
+    }
+
     if (!GetOptionalIntParam(config, "SourceYear", mSourceYear, errorMsg)) {
         PARAM_WARNING_DEFAULT(mContext->GetLogger(), errorMsg, mSourceYear, sName, mContext->GetConfigName());
     }
@@ -66,13 +74,6 @@ bool ProcessorParseTimestampNative::Init(const Json::Value& config) {
     //         mLegacyPreciseTimestampConfig.unit = TimeStampUnit::MILLISECOND;
     //     }
     // }
-
-    if (mSourceTimezone != "") {
-        if (!ParseLogTimeZoneOffsetSecond(mLogTimeZoneOffsetSecond, mSourceTimezone, errorMsg, true)) {
-            PARAM_WARNING_DEFAULT(
-                mContext->GetLogger(), errorMsg, mLogTimeZoneOffsetSecond, sName, mContext->GetConfigName());
-        };
-    }
 
     mParseTimeFailures = &(GetContext().GetProcessProfile().parseTimeFailures);
     mHistoryFailures = &(GetContext().GetProcessProfile().historyFailures);

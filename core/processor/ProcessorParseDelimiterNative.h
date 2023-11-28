@@ -65,7 +65,6 @@ private:
                      std::vector<size_t>& colLens);
     void AddLog(const StringView& key, const StringView& value, LogEvent& targetEvent, bool overwritten = true);
     bool mExtractPartialFields = false;
-    bool mAutoExtend = false;
 
     char mSeparatorChar;
     bool mSourceKeyOverwritten = false;
