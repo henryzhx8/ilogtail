@@ -183,10 +183,7 @@ bool ProcessorParseApsaraNative::ProcessEvent(const StringView& logPath,
             }
         } while (buffer.data()[index]);
     }
-    // TODO: deprecated
-    // if (mAdjustingMicroTimezone) {
-    //     logTime_in_micro = (int64_t)logTime_in_micro - (int64_t)mLogTimeZoneOffsetSecond * (int64_t)1000000;
-    // }
+    logTime_in_micro = (int64_t)logTime_in_micro - (int64_t)mLogTimeZoneOffsetSecond * (int64_t)1000000;
     StringBuffer sb = sourceEvent.GetSourceBuffer()->AllocateStringBuffer(20);
 #if defined(__linux__)
     sb.size = std::min(20, snprintf(sb.data, sb.capacity, "%ld", logTime_in_micro));
