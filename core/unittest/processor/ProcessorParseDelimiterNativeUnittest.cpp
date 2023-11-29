@@ -160,16 +160,18 @@ void ProcessorParseDelimiterNativeUnittest::TestInit() {
 
 void ProcessorParseDelimiterNativeUnittest::TestMultipleLines() {
     // make config
-    Config config;
-    config.mLogType = DELIMITER_LOG;
-    config.mLogBeginReg = "";
-    config.mAdvancedConfig.mEnableLogPositionMeta = false;
-    config.mSeparator = "@@";
-    config.mQuote = '\000';
-    config.mColumnKeys = {"a", "b", "c"};
-    config.mDiscardUnmatch = true;
-    config.mUploadRawLog = false;
-    config.mAdvancedConfig.mRawLogTag = "__raw__";
+    Json::Value config;
+    config["SourceKey"] = "content";
+    config["Separator"] = "@@";
+    config["Keys"] = Json::arrayValue;
+    config["Keys"].append("a");
+    config["Keys"].append("b");
+    config["Keys"].append("c");
+    config["KeepingSourceWhenParseFail"] = false;
+    config["KeepingSourceWhenParseSucceed"] = false;
+    config["AllowingShortenedFields"] = false;
+    config["SplitChar"] = '\n';
+    config["AppendingLogPositionMeta"] = true;
     // make events
     auto sourceBuffer = std::make_shared<SourceBuffer>();
     PipelineEventGroup eventGroup(sourceBuffer);
@@ -181,8 +183,7 @@ void ProcessorParseDelimiterNativeUnittest::TestMultipleLines() {
                 {
                     "content" : "123@@456@@789
 012@@345@@678
-",
-                    "log.file.offset": "0"
+"
                 },
                 "timestamp" : 12345678901,
                 "type" : 1
@@ -194,13 +195,12 @@ void ProcessorParseDelimiterNativeUnittest::TestMultipleLines() {
     ProcessorSplitLogStringNative processorSplitLogStringNative;
     processorSplitLogStringNative.SetContext(mContext);
     std::string pluginId = "testID";
-    ComponentConfig componentConfig(pluginId, config);
-    APSARA_TEST_TRUE_FATAL(processorSplitLogStringNative.Init(componentConfig));
+    APSARA_TEST_TRUE_FATAL(processorSplitLogStringNative.Init(config));
     processorSplitLogStringNative.Process(eventGroup);
     // run function ProcessorParseDelimiterNative
     ProcessorParseDelimiterNative& processorDelimiterNative = *(new ProcessorParseDelimiterNative);
     ProcessorInstance processorInstance(&processorDelimiterNative, pluginId);
-    APSARA_TEST_TRUE_FATAL(processorInstance.Init(componentConfig, mContext));
+    APSARA_TEST_TRUE_FATAL(processorInstance.Init(config, mContext));
     processorDelimiterNative.Process(eventGroup);
     std::string expectJson = R"({
         "events" :
@@ -208,10 +208,10 @@ void ProcessorParseDelimiterNativeUnittest::TestMultipleLines() {
             {
                 "contents" :
                 {
+                    "__file_offset__": "0",
                     "a": "123",
                     "b": "456",
-                    "c": "789",
-                    "log.file.offset": "0"
+                    "c": "789"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
@@ -220,10 +220,10 @@ void ProcessorParseDelimiterNativeUnittest::TestMultipleLines() {
             {
                 "contents" :
                 {
+                    "__file_offset__": "14",
                     "a": "012",
                     "b": "345",
-                    "c": "678",
-                    "log.file.offset": "0"
+                    "c": "678"
                 },
                 "timestamp" : 12345678901,
                 "timestampNanosecond": 0,
