@@ -42,6 +42,7 @@ private:
     int* mSplitLines = nullptr;
 #ifdef APSARA_UNIT_TEST_MAIN
     friend class ProcessorRegexStringNativeUnittest;
+    friend class ProcessorParseDelimiterNativeUnittest;
 #endif
 };
 
