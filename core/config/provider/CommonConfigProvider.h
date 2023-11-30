@@ -33,7 +33,10 @@ public:
     CommonConfigProvider(const CommonConfigProvider&) = delete;
     CommonConfigProvider& operator=(const CommonConfigProvider&) = delete;
 
-    static CommonConfigProvider* GetInstance();
+    static CommonConfigProvider* GetInstance() {
+        static CommonConfigProvider instance;
+        return &instance;
+    }
 
     void Init(const std::string& dir) override;
 
@@ -71,7 +74,7 @@ private:
     std::vector<std::string> mConfigServerTags;
 
     JThread mCheckUpdateThread;
-    std::atomic_bool mThreadIsRunning = true;
+    std::atomic_bool mThreadIsRunning = false;
     std::unordered_map<std::string, int64_t> mConfigNameVersionMap;
     bool mConfigServerAvailable = false;
 };

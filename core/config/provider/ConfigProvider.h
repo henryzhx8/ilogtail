@@ -17,6 +17,7 @@
 #pragma once
 
 #include <filesystem>
+#include <mutex>
 #include <string>
 
 namespace logtail {
@@ -33,6 +34,7 @@ protected:
     virtual ~ConfigProvider() = default;
 
     std::filesystem::path mSourceDir;
+    mutable std::mutex mMux;
 };
 
 } // namespace logtail

@@ -26,6 +26,7 @@
 #include "monitor/Monitor.h"
 #include "pipeline/PipelineManager.h"
 #include "plugin/PluginRegistry.h"
+#include "processor/daemon/LogProcess.h"
 #include "sender/Sender.h"
 #ifdef __ENTERPRISE__
 #include "config/provider/EnterpriseConfigProvider.h"
@@ -171,7 +172,18 @@ void Application::Start() {
 
     LogtailMonitor::Instance()->InitMonitor();
 
-    ConfigWatcher::GetInstance()->AddSource(AppConfig::GetInstance()->GetLogtailSysConfDir() + "/config/local");
+    // add local config dir
+    filesystem::path localConfigPath
+        = filesystem::path(AppConfig::GetInstance()->GetLogtailSysConfDir()) / "config" / "local";
+    error_code ec;
+    filesystem::create_directories(localConfigPath, ec);
+    if (ec) {
+        LOG_WARNING(sLogger,
+                    ("failed to create dir for local config",
+                     "manual creation may be required")("error code", ec.value())("error msg", ec.message()));
+    }
+    ConfigWatcher::GetInstance()->AddSource(localConfigPath.string());
+
 #ifdef __ENTERPRISE__
     EnterpriseConfigProvider::GetInstance()->Init("enterprise");
     LegacyConfigProvider::GetInstance()->Init("legacy");
@@ -193,12 +205,14 @@ void Application::Start() {
         LogtailPlugin::GetInstance()->LoadPluginBase();
     }
     // Actually, docker env config will not work if not in purage container mode, so there is no need to load plugin
-    // base. However, we still load it here for backward compatability.
+    // base if not in purage container mode. However, we still load it here for backward compatability.
     const char* dockerEnvConfig = getenv("ALICLOUD_LOG_DOCKER_ENV_CONFIG");
     if (dockerEnvConfig != NULL && strlen(dockerEnvConfig) > 0
         && (dockerEnvConfig[0] == 't' || dockerEnvConfig[0] == 'T')) {
         LogtailPlugin::GetInstance()->LoadPluginBase();
     }
+
+    LogProcess::GetInstance()->Start();
 
     time_t curTime = 0, lastProfilingCheckTime = 0, lastTcmallocReleaseMemTime = 0, lastConfigCheckTime = 0,
            lastUpdateMetricTime = 0, lastCheckTagsTime = 0;
